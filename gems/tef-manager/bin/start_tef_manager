@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'tef/manager'
+
+manager_node = TEF::Manager::ManagerNode.new
+manager_node.start
+
+begin
+  loop do
+    sleep 1
+  end
+rescue Interrupt => _
+  manager_node.stop
+
+  exit(0)
+end

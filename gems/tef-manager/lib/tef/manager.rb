@@ -1,0 +1,7 @@
+require 'tef/manager/with_control_queue'
+require 'tef/manager/manager_node'
+require 'tef/manager/dispatcher'
+require 'tef/manager/task_queue'
+require 'tef/manager/worker_collective'
+require 'tef/manager/remote_worker'
+require 'tef/manager/models'

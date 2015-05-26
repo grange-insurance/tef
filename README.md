@@ -1,39 +1,34 @@
-# Tef
+# *The Hive* a task execution framework 
+#
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/tef`. To experiment with that code, run `bin/console` for an interactive prompt.
+## About
+tldr; The Hive is a distributed processing grid that's aware of available resources. 
 
-TODO: Delete this and the text above, and describe your gem
+The Hive was developed to support large scale automated-testing at Grange Insurance.  Comprised of several micro-services that communicate over [RabbitMQ](http://www.rabbitmq.com/), the Hive is designed to be easily extensible and maintainable. It the latest a series of grids built to support the ever-growing automation efforts at Grange.
 
-## Installation
+Grange bought into both Agile and automated testing in a big way several years ago. The *Grange Grid* was built to support testing on Windows using *Internet Explorer*. The architecture has evolved over the years with the following guiding principles:
 
-Add this line to your application's Gemfile:
+- **Nothing gets lost** - If something goes wrong (and it will) it should leave a trace.
+- **Shorten the feedback loop** - The sooner you know something it broken the cheaper and easier it is to fix.
+- **Noise should not be tolerated** - Purely environmental issues shouldn't be allowed to impact results.
+- **Maximize resources** - Send exactly as many workers at any one server as they can handle.  Too few lengthens the feedback loop, too many introduces errors.
 
-```ruby
-gem 'tef'
-```
 
-And then execute:
+## Services
+The services below make up a typical Hive installation.
 
-    $ bundle
+ - **Manager** - Acts as a traffic cop, directing tasks to workers.  It accepts new tasks in JSON format via an "input" RabbitMQ exchange.  Workers, and others, can communicate with the Manager via the "control" RabbitMQ exchange.
+ - **Worker** - Executes tasks. Each type of task requires a worker that can handle it, at a minimum. The only requirement placed on a worker by the Hive is that it be cable of receiving a task in JSON via RabbitMQ and that it advertise it's availability to the manger via RabbitMQ.
+ - **Keeper** - Receives the output of the workers.  In most cases a custom keeper is developer for each custom task.  A simple implementation of a Keeper for a task could store the results in a database.  However if the Keeper implements a rule engine capable of triaging results, environmental noise can be reduced by requeueing tasks.
+ - **Queuebert** - Generates tasks and sends them off to the Manager via it's "input" exchange. For example:  The Cucumber Queuebert is capable of breaking down feature files into smaller units of work before sending them off to be executed on Hive workers.       
 
-Or install it yourself as:
 
-    $ gem install tef
 
-## Usage
+Queuebert
+=========
 
-TODO: Write usage instructions here
+Queuebert is responsible for dynamically creating the tasks that are sent to the Hive Manager.
 
-## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release` to create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
-## Contributing
-
-1. Fork it ( https://github.com/[my-github-username]/tef/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request

@@ -1,5 +1,6 @@
-require "tef/version"
-
-module Tef
-  # Your code goes here...
-end
+require 'tef/version'
+require 'tef/queuebert'
+require 'tef/manager'
+require 'tef/worker/cuke_worker'
+require 'tef/keeper'
+require 'tef/cuke_keeper'

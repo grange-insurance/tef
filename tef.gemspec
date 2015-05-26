@@ -4,28 +4,30 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'tef/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "tef"
-  spec.version       = Tef::VERSION
-  spec.authors       = ["Eric Kessler"]
-  spec.email         = ["morrow748@gmail.com"]
+  spec.name          = 'tef'
+  spec.version       = TEF::VERSION
+  spec.authors       = ['Donavan Stanley', 'Eric Kessler']
+  spec.email         = ['stanleyd@grangeinsurance.com']
+  spec.summary       = %q{A super awesome gem}
+  spec.description   = %q{It deals with tasks.}
+  spec.homepage      = 'https://github.com/orgs/grange-insurance'
+  spec.license       = 'MIT'
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  # Should figure out some kind of documentation to include as the gems files?
+  #spec.files         = `git ls-files -z`.split("\x0")
+  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
 
-  # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
-  # delete this section to allow pushing this gem to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
-  end
+  spec.add_development_dependency 'cucumber', '~> 2.0'
+  spec.add_development_dependency 'bundler' , '~> 1.6'
+  spec.add_development_dependency 'rake'    , '~> 10.3'
+  spec.add_development_dependency 'rspec'   , '~> 3.0'
+  spec.add_development_dependency 'simplecov', '~> 0.9'
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
-
-  spec.add_development_dependency "bundler", "~> 1.9"
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_dependency 'tef-queuebert', '~> 0'
+  spec.add_dependency 'tef-worker', '~> 0'
+  spec.add_dependency 'tef-worker-cuke_worker', '~> 0'
+  spec.add_dependency 'tef-manager', '~> 0'
+  spec.add_dependency 'tef-keeper', '~> 0'
+  spec.add_dependency 'tef-cuke_keeper', '~> 0'
 end

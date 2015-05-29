@@ -1,0 +1,31 @@
+require 'bundler/gem_tasks'
+require 'rspec/core/rake_task'
+
+
+namespace 'amqlog' do
+
+  namespace 'rspec' do
+    desc 'Run all specifications for amqlog'
+    RSpec::Core::RakeTask.new(:specs, :command_options) do |t, args|
+      t.rspec_opts = '--tag ~wip --color '
+      t.rspec_opts << args[:command_options] if args[:command_options]
+    end
+  end
+
+  desc 'Run everything for amqlog'
+  task :test_everything, [:command_options] do |_t, args|
+    Rake::Task['amqlog:rspec:specs'].invoke(args[:command_options])
+  end
+
+
+  task :default => :build
+
+  task :build do
+    system 'gem build amqlog.gemspec'
+  end
+
+  task :release_gem => :build do
+    system "gem inabox pkg/amqlog-#{Amqlog::VERSION}.gem"
+  end
+
+end

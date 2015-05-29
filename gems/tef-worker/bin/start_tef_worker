@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'tef/worker'
+
+work_node = TEF::Worker::WorkNode.new
+work_node.start
+
+begin
+  loop do
+    # Nothing
+  end
+rescue Interrupt => _
+  work_node.stop
+
+  exit(0)
+end

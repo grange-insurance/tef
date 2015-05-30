@@ -6,7 +6,6 @@ SimpleCov.command_name 'tef-cucumber'
 # require 'bunny'
 # # Used for #wait_for
 # require 'rspec/wait'
-# require_relative '../../gem_extensions/rspec-wait_extensions'
 # include RSpec::Wait
 
 # # Used to conveniently get process ids for test cleanup

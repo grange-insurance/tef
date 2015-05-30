@@ -1,6 +1,4 @@
 require 'tef/version'
-require 'tef/queuebert'
 require 'tef/manager'
-require 'tef/worker/cuke_worker'
+require 'tef/worker'
 require 'tef/keeper'
-require 'tef/cuke_keeper'

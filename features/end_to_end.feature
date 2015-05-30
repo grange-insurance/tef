@@ -1,3 +1,5 @@
+#todo - have to rewrite this to not be a tef-cucumber based use case
+@wip
 Feature: End to end acceptance testing
 
   Everything should work!
@@ -13,8 +15,3 @@ Feature: End to end acceptance testing
     And a cuke keeper node is running
     When  a request for a test suite is sent
     Then results for the executed tests are stored by the keeper
-
-  @wip
-  Scenario: Cucumber task with Bundler
-    Note: use the bundle daemon in this one
-

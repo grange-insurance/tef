@@ -19,15 +19,15 @@ shared_examples_for 'a service component, integration level' do
 
   it 'starting the service connects it to RabbitMQ' do
     stdout, stderr, status = Open3.capture3('rabbitmqctl list_connections name host port')
-    connection_list = stdout.split("\n").slice(1..-2)
-    before_count = connection_list.count
+    connection_list = stdout.split("\n")
+    before_count = connection_list.count - 1
 
     begin
       @component.start
 
       stdout, stderr, status = Open3.capture3('rabbitmqctl list_connections name host port')
-      connection_list = stdout.split("\n").slice(1..-2)
-      after_count = connection_list.count
+      connection_list = stdout.split("\n")
+      after_count = connection_list.count - 1
 
       expect(after_count).to eq(before_count + 1)
     ensure
@@ -40,14 +40,14 @@ shared_examples_for 'a service component, integration level' do
       @component.start
 
       stdout, stderr, status = Open3.capture3('rabbitmqctl list_connections name host port')
-      connection_list = stdout.split("\n").slice(1..-2)
-      before_count = connection_list.count
+      connection_list = stdout.split("\n")
+      before_count = connection_list.count - 1
 
       @component.stop
 
       stdout, stderr, status = Open3.capture3('rabbitmqctl list_connections name host port')
-      connection_list = stdout.split("\n").slice(1..-2)
-      after_count = connection_list.count
+      connection_list = stdout.split("\n")
+      after_count = connection_list.count - 1
 
       expect(after_count).to eq(before_count - 1)
     ensure

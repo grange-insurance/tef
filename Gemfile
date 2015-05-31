@@ -13,6 +13,7 @@ def testing_gems
   gem 'bunny', '~> 1.4'
   gem 'sys-proctable'
   gem 'database_cleaner'
+  gem 'racatt'
 end
 
 # The development (i.e. source code) versions of gems that are (or are needed by) our stuff

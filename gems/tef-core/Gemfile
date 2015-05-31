@@ -8,6 +8,7 @@ def testing_gems
   gem 'rake', '~> 10.3'
   gem 'rspec', '~> 3.0.0'
   gem 'simplecov'
+  gem 'racatt'
 end
 
 # The development (i.e. source code) versions of gems that are (or are needed by) our stuff

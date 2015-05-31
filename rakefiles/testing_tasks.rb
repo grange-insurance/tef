@@ -2,18 +2,8 @@ require_relative 'common_tasks'
 require_relative 'bundler_tasks'
 
 
-require 'cucumber/rake/task'
-require 'rspec/core/rake_task'
+require 'racatt'
 require 'open3'
-
-
-def set_cucumber_options(options)
-  ENV['CUCUMBER_OPTS'] = options
-end
-
-def combine_options(set_1, set_2)
-  set_2 ? "#{set_1} #{set_2}" : set_1
-end
 
 
 namespace 'tef' do
@@ -74,26 +64,7 @@ namespace 'tef' do
     end
   end
 
-  namespace 'cucumber' do
-    desc 'Run all tests for the TEF'
-    task :tests, [:command_options] do |t, args|
-      set_cucumber_options(combine_options('-t ~@wip -t ~@off', args[:command_options]))
-    end
-    Cucumber::Rake::Task.new(:tests)
-  end
 
-  namespace 'rspec' do
-    desc 'Run all specifications for the TEF'
-    RSpec::Core::RakeTask.new(:specs, :command_options) do |t, args|
-      t.rspec_opts = '--tag ~wip '
-      t.rspec_opts << args[:command_options] if args[:command_options]
-    end
-  end
-
-  desc 'Test everything about the TEF'
-  task :test_everything, [:mode, :command_options] do |t, args|
-    Rake::Task['tef:rspec:specs'].invoke(args[:command_options])
-    Rake::Task['tef:cucumber:tests'].invoke(args[:command_options])
-  end
+  Racatt.create_tasks
 
 end

@@ -16,7 +16,7 @@ def dev_gems
   gem 'bunny', '~> 1.4'
   gem 'tiny_tds', '~> 0.6'
   gem 'activerecord', '~> 4.1'
-  gem 'activerecord-sqlserver-adapter', '~> 4.1'
+  gem 'activerecord-sqlserver-adapter', '~> 4.2.4'
   gem 'workers'
 
   # Dev mode has to explicitly include every needed gem dependency in the project in order to
@@ -31,7 +31,7 @@ def test_gems
   gem 'bunny', '~> 1.4'
   gem 'tiny_tds', '~> 0.6'
   gem 'activerecord', '~> 4.1'
-  gem 'activerecord-sqlserver-adapter', '~> 4.1'
+  gem 'activerecord-sqlserver-adapter', '~> 4.2.4'
   gem 'workers'
 
   gem 'res_man'

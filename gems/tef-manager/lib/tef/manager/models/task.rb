@@ -37,7 +37,7 @@ module TEF
          task_type: task_type,
          guid: guid,
          priority: priority,
-         task_data: YAML.load(task_data),
+         task_data: load_data(task_data),
          suite_guid: suite_guid,
          time_limit: time_limit,
          resources: task_resources.map(&:resource_name).join('|')
@@ -46,6 +46,22 @@ module TEF
 
       def to_json
         JSON.generate to_h
+      end
+
+      def load_data data
+        begin
+          if yaml_string?(data)
+            return YAML.load(data)
+          elsif data.class.to_s == 'String'
+            return eval(data)
+          end
+        rescue => e
+          @logger.warn("Unable to load data, Error: #{e},#{data}")
+        end
+      end
+
+      def yaml_string?(string)
+        !!string[/^---/m]
       end
 
     end

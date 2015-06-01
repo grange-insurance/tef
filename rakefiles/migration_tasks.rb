@@ -21,7 +21,7 @@ namespace 'tef' do
 
     puts "TEF env is: #{ENV['TEF_ENV']}"
 
-    component_locations.each do |component, location|
+    TEF.component_locations.each do |component, location|
       Dir.chdir(location) do
         task_name = "#{component.gsub('-', ':')}:migrate"
         file = "#{Dir.pwd}/Rakefile"

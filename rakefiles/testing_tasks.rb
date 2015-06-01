@@ -23,7 +23,7 @@ namespace 'tef' do
 
     test_results = {}
 
-    component_locations.each do |component, location|
+    TEF.component_locations.each do |component, location|
       command = "bundle exec rake #{component.gsub('-', ':')}:test_everything['#{args[:command_options]}']"
       puts "Testing #{component} with: #{command}"
 

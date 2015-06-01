@@ -1,6 +1,4 @@
 require_relative 'lib/tef/manager/models/task'
-require 'pry'
-require 'pry-debugger'
 
 def tef_env
   !ENV['TEF_ENV'].nil? ? ENV['TEF_ENV'].downcase : 'dev'

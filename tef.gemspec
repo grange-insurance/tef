@@ -24,10 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec'   , '~> 3.0'
   spec.add_development_dependency 'simplecov', '~> 0.9'
 
-  spec.add_dependency 'tef-queuebert', '~> 0'
   spec.add_dependency 'tef-worker', '~> 0'
-  spec.add_dependency 'tef-worker-cuke_worker', '~> 0'
   spec.add_dependency 'tef-manager', '~> 0'
   spec.add_dependency 'tef-keeper', '~> 0'
-  spec.add_dependency 'tef-cuke_keeper', '~> 0'
 end

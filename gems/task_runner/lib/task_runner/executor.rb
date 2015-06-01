@@ -39,7 +39,6 @@ module TaskRunner
 
     private
     def open3_with_timeout(cmd)
-      #require 'pry'; binding.pry
       inp, out, err, wait_thr = Open3.popen3(cmd)
       inp.close
 

@@ -7,7 +7,7 @@ namespace 'tef' do
   task :build_gems do
     @built_gems = []
 
-    component_locations.each do |component, location|
+    TEF.component_locations.each do |component, location|
       next unless location =~ /^gems/
 
       puts "Building gem #{component} from #{location}"

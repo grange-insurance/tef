@@ -1,20 +1,15 @@
-def component_locations
-  {
-      'mdf' => 'gems/mdf',
-      'task_runner' => 'gems/task_runner',
-      'cuke_runner' => 'gems/cuke_runner',
-      'bundle_daemon' => 'gems/bundle_daemon',
-      'amqlog' => 'gems/amqlog',
-      'tef-core' => 'gems/tef-core',
-      'tef-keeper' => 'gems/tef-keeper',
-      'tef-cuke_keeper' => 'gems/tef-cuke_keeper',
-      'tef-manager' => 'gems/tef-manager',
-      'tef-queuebert' => 'gems/tef-queuebert',
-      'tef-worker' => 'gems/tef-worker',
-      'tef-worker-cuke_worker' => 'gems/tef-worker-cuke_worker',
-      'tef-suite_scheduler' => 'gems/tef-suite_scheduler',
-      'tef' => 'gems/..'
-  }
+module TEF
+  def self.component_locations
+    {
+        'task_runner' => 'gems/task_runner',
+        'amqlog' => 'gems/amqlog',
+        'tef-core' => 'gems/tef-core',
+        'tef-keeper' => 'gems/tef-keeper',
+        'tef-manager' => 'gems/tef-manager',
+        'tef-worker' => 'gems/tef-worker',
+        'tef' => 'gems/..'
+    }
+  end
 end
 
 namespace 'tef' do

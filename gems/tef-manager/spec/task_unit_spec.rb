@@ -48,7 +48,7 @@ describe 'Task, Unit' do
       expect(@task.task_type).to eq(@task_hash[:task_type])
       expect(@task.priority).to eq(@task_hash[:priority])
       expect(@task.task_resources.count).to eq(3)
-      expect(@task.task_data).to eq(@task_hash[:task_data])
+      expect(@task.task_data).to eq(YAML.dump(@task_hash[:task_data]))
     end
 
     it 'defaults to the lowest priority if none is given' do
@@ -57,10 +57,7 @@ describe 'Task, Unit' do
       @task.load_hash(@task_hash)
       @task.save!
 
-      expect(@task.task_type).to eq(@task_hash[:task_type])
       expect(@task.priority).to eq(1)
-      expect(@task.task_resources.count).to eq(3)
-      expect(@task.task_data).to eq(@task_hash[:task_data])
     end
 
     it 'can convert itself back to a hash' do

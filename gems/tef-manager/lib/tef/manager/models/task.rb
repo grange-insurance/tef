@@ -14,7 +14,7 @@ module TEF
         self.task_type    = json_hash[:task_type]
         self.guid         = json_hash[:guid]
         self.priority     = json_hash[:priority] || 1
-        self.task_data    = json_hash[:task_data]
+        self.task_data    = YAML.dump(json_hash[:task_data])
         self.suite_guid   = json_hash.fetch(:suite_guid, nil)
         self.time_limit   = json_hash.fetch(:time_limit, nil)
         res_str = json_hash[:resources] || ''

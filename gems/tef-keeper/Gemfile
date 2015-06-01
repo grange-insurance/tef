@@ -9,8 +9,7 @@ def testing_gems
   gem 'rspec', '~> 3.0.0'
   gem 'rspec-wait', '= 0.0.2'
   gem 'simplecov'
-  gem 'pry'
-  gem 'pry-debugger'
+  gem 'racatt'
 end
 
 # The development (i.e. source code) versions of gems that are (or are needed by) our stuff

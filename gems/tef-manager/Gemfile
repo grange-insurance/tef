@@ -3,13 +3,12 @@ source 'https://rubygems.org'
 
 # The gems that we use to test our stuff
 def testing_gems
-  gem 'pry'
-  gem 'pry-debugger'
   gem 'rake'
   gem 'rspec', '~> 3.0.0'
   gem 'cucumber'
   gem 'simplecov'
   gem 'database_cleaner'
+  gem 'racatt'
 end
 
 # The development (i.e. source code) versions of gems that are (or are needed by) our stuff

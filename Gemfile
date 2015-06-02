@@ -30,6 +30,7 @@ def dev_gems
   gem 'tef-manager', :path => 'gems/tef-manager'
   gem 'tef-keeper', :path => 'gems/tef-keeper'
   gem 'tef', :path => '.'
+  gem 'tef-development', :path => 'gems/tef-development'
 end
 
 # The real (i.e. installed on the machine) versions gems that are (or are needed by) our stuff
@@ -38,6 +39,7 @@ def test_gems
   gem 'tef-manager'
   gem 'tef-keeper'
   gem 'tef'
+  gem 'tef-development'
 end
 
 # Nothing new to see here.

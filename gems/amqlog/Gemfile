@@ -12,7 +12,7 @@ end
 def dev_gems
   gem 'amqp'
   gem 'amqlog', path: '../amqlog'
-  gem 'tef-development', :path => 'gems/tef-development'
+  gem 'tef-development', :path => '../tef-development'
 end
 
 # The real (i.e. installed on the machine) versions gems that are (or are needed by) our stuff

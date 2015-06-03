@@ -15,7 +15,7 @@ end
 def dev_gems
   gem 'bunny', '~> 1.4'
   gem 'tef-core', path: '../tef-core'
-  gem 'tef-development', :path => 'gems/tef-development'
+  gem 'tef-development', :path => '../tef-development'
 end
 
 # The real (i.e. installed on the machine) versions gems that are (or are needed by) our stuff

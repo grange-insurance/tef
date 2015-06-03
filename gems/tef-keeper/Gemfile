@@ -21,7 +21,7 @@ def dev_gems
   # be properly (i.e. recursively) loaded from source by Bundler
   gem 'tef-core', :path => '../tef-core'
   gem 'tef-keeper', :path => '../tef-keeper'
-  gem 'tef-development', :path => 'gems/tef-development'
+  gem 'tef-development', :path => '../tef-development'
 end
 
 # The real (i.e. installed on the machine) versions gems that are (or are needed by) our stuff

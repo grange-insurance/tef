@@ -1,4 +1,4 @@
-require_relative '../../../../features/step_definitions/common/action_steps'
+require 'tef/development/step_definitions/action_steps'
 
 
 When(/^a keeper is started$/) do

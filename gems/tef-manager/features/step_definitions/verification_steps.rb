@@ -1,4 +1,4 @@
-require_relative '../../../../features/step_definitions/common/verification_steps'
+require 'tef/development/step_definitions/verification_steps'
 
 
 Then(/^message in\/out queues for the manager have been created$/) do

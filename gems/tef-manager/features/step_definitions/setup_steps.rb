@@ -1,4 +1,4 @@
-require_relative '../../../../features/step_definitions/common/setup_steps'
+require 'tef/development/step_definitions/setup_steps'
 
 
 Given(/^message in\/out queues for the manager have not been yet been created$/) do

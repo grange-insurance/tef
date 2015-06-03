@@ -23,15 +23,10 @@ def dev_gems
   # be properly (i.e. recursively) loaded from source by Bundler
   gem 'task_runner', :path => 'gems/task_runner'
   gem 'tef-worker', :path => 'gems/tef-worker'
-  gem 'cuke_runner', :path => 'gems/cuke_runner'
-  gem 'tef-worker-cuke_worker', :path => 'gems/tef-worker-cuke_worker'
-  gem 'tef-queuebert', :path => 'gems/tef-queuebert'
   gem 'tef-core', :path => 'gems/tef-core'
   gem 'res_man', git: 'https://github.com/grange-insurance/res_man.git', branch: 'master'
   gem 'tef-manager', :path => 'gems/tef-manager'
   gem 'tef-keeper', :path => 'gems/tef-keeper'
-  gem 'tef-cuke_keeper', :path => 'gems/tef-cuke_keeper'
-  gem 'mdf', :path => 'gems/mdf'
   gem 'tef', :path => '.'
   gem 'tef-development', :path => 'gems/tef-development'
 end
@@ -39,12 +34,8 @@ end
 # The real (i.e. installed on the machine) versions gems that are (or are needed by) our stuff
 def test_gems
   gem 'tef-worker'
-  gem 'tef-worker-cuke_worker'
-  gem 'tef-queuebert'
   gem 'tef-manager'
   gem 'tef-keeper'
-  gem 'tef-cuke_keeper'
-  gem 'mdf'
   gem 'tef'
   gem 'tef-development'
 end

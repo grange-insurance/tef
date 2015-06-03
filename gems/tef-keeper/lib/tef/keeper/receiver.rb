@@ -43,7 +43,6 @@ module TEF
             task = JSON.parse(message_body, symbolize_names: true)
             @logger.info("Received #{task[:task_type]} task #{task[:guid]}")
 
-            task[:task_data][:results][:stdout] = task[:task_data][:results][:stdout].gsub("\n",'').gsub("\e",'').gsub('[37m','')
             @task_callback.call(delivery_info, _properties, task, @logger)
 
             forward_task(task)

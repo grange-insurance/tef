@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'tef'
   spec.version       = TEF::VERSION
   spec.authors       = ['Donavan Stanley', 'Eric Kessler']
-  spec.email         = ['stanleyd@grangeinsurance.com','morrow748@gmail.com']
+  spec.email         = ['donavan.stanley@gmail.com', 'morrow748@gmail.com']
   spec.summary       = %q{A super awesome gem}
   spec.description   = %q{It deals with tasks.}
   spec.homepage      = 'https://github.com/orgs/grange-insurance'

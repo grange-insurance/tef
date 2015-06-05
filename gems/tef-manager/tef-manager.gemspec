@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'tef-manager'
   spec.version       = TEF::Manager::VERSION
   spec.authors       = ['Donavan Stanley', 'Eric Kessler']
-  spec.email         = ['stanleyd@grangeinsurance.com']
+  spec.email         = ['donavan.stanley@gmail.com', 'morrow748@gmail.com']
   spec.summary       = %q{The task managing portion of the TEF}
   spec.description   = %q{It makes managing tasks easy.}
   spec.homepage      = 'https://github.com/orgs/grange-insurance'

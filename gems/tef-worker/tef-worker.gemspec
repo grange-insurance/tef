@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'tef-worker'
   spec.version       = TEF::Worker::VERSION
   spec.authors       = ['Donavan Stanley', 'Eric Kessler']
-  spec.email         = ['stanleyd@grangeinsurance.com']
+  spec.email         = ['donavan.stanley@gmail.com', 'morrow748@gmail.com']
   spec.summary       = %q{The task working portion of the TEF}
   spec.description   = %q{A basic task worker.}
   spec.homepage      = 'https://github.com/orgs/grange-insurance'

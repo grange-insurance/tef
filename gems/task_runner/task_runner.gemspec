@@ -6,8 +6,8 @@ require 'task_runner/version'
 Gem::Specification.new do |spec|
   spec.name          = "task_runner"
   spec.version       = TaskRunner::VERSION
-  spec.authors       = ["c-kessle"]
-  spec.email         = ["KesslerE@Grangeinsurance.com"]
+  spec.authors       = ['Donavan Stanley', 'Eric Kessler']
+  spec.email         = ['donavan.stanley@gmail.com', 'morrow748@gmail.com']
   spec.summary       = %q{A gem to handle running tasks.}
   spec.description   = %q{A gem to handle running tasks within the TEF}
   spec.homepage      = "https://github.com/orgs/grange-insurance"

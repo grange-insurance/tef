@@ -6,8 +6,8 @@ require 'amqlog/version'
 Gem::Specification.new do |gem|
   gem.name          = "amqlog"
   gem.version       = Amqlog::VERSION
-  gem.authors       = ["Donavan Stanley"]
-  gem.email         = ["c-stanld@grangeinsurance.com"]
+  gem.authors       = ['Donavan Stanley', 'Eric Kessler']
+  gem.email         = ['donavan.stanley@gmail.com', 'morrow748@gmail.com']
   gem.description   = %q{A Logger device that outputs to RabbitMQ.}
   gem.summary       = %q{Log rabbit log.}
   gem.homepage      = 'https://github.com/orgs/grange-insurance'

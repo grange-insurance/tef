@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'tef-keeper'
   spec.version       = TEF::Keeper::VERSION
   spec.authors       = ['Donavan Stanley', 'Eric Kessler']
-  spec.email         = ['stanleyd@grangeinsurance.com']
+  spec.email         = ['donavan.stanley@gmail.com', 'morrow748@gmail.com']
   spec.summary       = %q{The task result storing portion of the TEF}
   spec.description   = %q{It stores results.}
   spec.homepage      = 'https://github.com/orgs/grange-insurance'

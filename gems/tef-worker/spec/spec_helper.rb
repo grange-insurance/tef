@@ -4,24 +4,25 @@ SimpleCov.command_name 'tef-worker-rspec'
 
 require 'bunny'
 
-require_relative '../../../spec/common/specs/configured_component_unit_specs'
-require_relative '../../../spec/common/specs/logged_component_unit_specs'
-require_relative '../../../spec/common/specs/logged_component_integration_specs'
-require_relative '../../../spec/common/specs/receiving_component_integration_specs'
-require_relative '../../../spec/common/specs/receiving_component_unit_specs'
-require_relative '../../../spec/common/specs/sending_component_integration_specs'
-require_relative '../../../spec/common/specs/sending_component_unit_specs'
-require_relative '../../../spec/common/specs/worker_component_unit_specs'
-require_relative '../../../spec/common/specs/worker_component_integration_specs'
-require_relative '../../../spec/common/specs/service_component_unit_specs'
-require_relative '../../../spec/common/specs/service_component_integration_specs'
-require_relative '../../../spec/common/specs/rooted_component_unit_specs'
-require_relative '../../../spec/common/specs/rooted_component_integration_specs'
+require 'tef/development/specs/configured_component_unit_specs'
+require 'tef/development/specs/logged_component_unit_specs'
+require 'tef/development/specs/logged_component_integration_specs'
+require 'tef/development/specs/receiving_component_integration_specs'
+require 'tef/development/specs/receiving_component_unit_specs'
+require 'tef/development/specs/sending_component_integration_specs'
+require 'tef/development/specs/sending_component_unit_specs'
+require 'tef/development/specs/worker_component_unit_specs'
+require 'tef/development/specs/worker_component_integration_specs'
+require 'tef/development/specs/service_component_unit_specs'
+require 'tef/development/specs/service_component_integration_specs'
+require 'tef/development/specs/rooted_component_unit_specs'
+require 'tef/development/specs/rooted_component_integration_specs'
 
-require_relative '../../../testing/fakes'
-include TefTestingFakes
-require_relative '../../../testing/mocks'
-include TefTestingMocks
+
+require 'tef/development/testing/fakes'
+include TEF::Development::Testing::Fakes
+require 'tef/development/testing/mocks'
+include TEF::Development::Testing::Mocks
 
 require 'tef/worker'
 

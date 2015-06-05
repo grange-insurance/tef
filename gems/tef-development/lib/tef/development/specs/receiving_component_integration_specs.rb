@@ -1,7 +1,7 @@
 require_relative 'messaging_component_integration_specs'
 
-require_relative '../../../testing/mocks'
-include TefTestingMocks
+require_relative '../testing/mocks'
+include TEF::Development::Testing::Mocks
 
 
 shared_examples_for 'a receiving component, integration level' do |clazz, configuration, input_queues|

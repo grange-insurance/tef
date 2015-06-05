@@ -1,5 +1,5 @@
-require_relative '../../../testing/mocks'
-include TefTestingMocks
+require_relative '../testing/mocks'
+include TEF::Development::Testing::Mocks
 
 # Could be unit or integration level depending on where the tests are called
 # from and what #start/#stop does

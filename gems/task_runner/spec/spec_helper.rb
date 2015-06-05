@@ -8,12 +8,12 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'task_runner'
 
 
-require_relative '../../../spec/common/specs/configured_component_unit_specs'
-require_relative '../../../spec/common/specs/logged_component_unit_specs'
-require_relative '../../../spec/common/specs/logged_component_integration_specs'
-require_relative '../../../testing/mocks'
+require 'tef/development/specs/configured_component_unit_specs'
+require 'tef/development/specs/logged_component_unit_specs'
+require 'tef/development/specs/logged_component_integration_specs'
 
-include TefTestingMocks
+require 'tef/development/testing/mocks'
+include TEF::Development::Testing::Mocks
 
 
 RSpec.configure do |config|

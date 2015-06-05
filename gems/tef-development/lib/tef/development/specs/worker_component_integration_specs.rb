@@ -1,6 +1,6 @@
 require 'json'
-require_relative '../../../testing/fakes'
-include TefTestingFakes
+require_relative '../testing/fakes'
+include TEF::Development::Testing::Fakes
 
 shared_examples_for 'a worker component, integration level' do
 

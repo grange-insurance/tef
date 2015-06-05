@@ -2,11 +2,11 @@ require 'simplecov'
 SimpleCov.command_name 'tef-core-rspec'
 
 
-require_relative '../../../spec/common/specs/configured_component_unit_specs'
-require_relative '../../../spec/common/specs/logged_component_unit_specs'
-require_relative '../../../spec/common/specs/logged_component_integration_specs'
-require_relative '../../../spec/common/specs/service_component_unit_specs'
-require_relative '../../../spec/common/specs/service_component_integration_specs'
+require 'tef/development/specs/configured_component_unit_specs'
+require 'tef/development/specs/logged_component_unit_specs'
+require 'tef/development/specs/logged_component_integration_specs'
+require 'tef/development/specs/service_component_unit_specs'
+require 'tef/development/specs/service_component_integration_specs'
 
 
 require 'tef/core'

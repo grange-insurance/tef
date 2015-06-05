@@ -1,5 +1,6 @@
-require_relative '../../../testing/mocks'
-include TefTestingMocks
+require_relative '../testing/mocks'
+include TEF::Development::Testing::Mocks
+
 
 shared_examples_for 'a logged component, unit level' do
 

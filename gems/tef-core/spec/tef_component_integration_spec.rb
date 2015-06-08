@@ -1,8 +1,10 @@
 require 'spec_helper'
+require 'tef/core/tef_component'
+
 
 describe 'TefComponent, Integration' do
 
-  clazz = TEF::TefComponent
+  clazz = TEF::Core::TefComponent
 
 
   it_should_behave_like 'a logged component, integration level' do

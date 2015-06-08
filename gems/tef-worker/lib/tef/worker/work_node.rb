@@ -2,7 +2,7 @@ require 'socket'
 
 module TEF
   module Worker
-    class WorkNode < TefComponent
+    class WorkNode < Core::TefComponent
 
       EXIT_CODE_FAILED_QUEUE = 3
 

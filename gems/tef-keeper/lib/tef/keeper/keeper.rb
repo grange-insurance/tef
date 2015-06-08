@@ -2,7 +2,7 @@ require 'tef/core'
 
 module TEF
   module Keeper
-    class Keeper < TefComponent
+    class Keeper < Core::TefComponent
 
       EXIT_CODE_FAILED_QUEUE = 3
 

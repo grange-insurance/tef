@@ -9,9 +9,6 @@ require 'tef/development/specs/service_component_unit_specs'
 require 'tef/development/specs/service_component_integration_specs'
 
 
-require 'tef/core'
-
-
 RSpec.configure do |config|
   config.before(:all) do
     ENV['TEF_ENV'] ||= 'dev'

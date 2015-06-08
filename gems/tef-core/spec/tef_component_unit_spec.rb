@@ -1,8 +1,10 @@
 require 'spec_helper'
+require 'tef/core/tef_component'
+
 
 describe 'TefComponent, Unit' do
 
-  clazz = TEF::TefComponent
+  clazz = TEF::Core::TefComponent
 
 
   it_should_behave_like 'a configured component', clazz

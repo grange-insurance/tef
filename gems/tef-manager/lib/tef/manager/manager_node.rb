@@ -7,7 +7,7 @@ require 'active_record'
 module TEF
   module Manager
     # High level object that ties all the components together into a functional app
-    class ManagerNode < TEF::TefComponent
+    class ManagerNode < Core::TefComponent
 
       # todo - pull these and other exit codes out into TEF module constants
       EXIT_CODE_FAILED_QUEUE = 3

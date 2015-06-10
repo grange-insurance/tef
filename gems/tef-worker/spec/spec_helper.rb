@@ -44,8 +44,3 @@ RSpec.configure do |config|
   end
 
 end
-
-# This seems like something that Bunny should already have...
-def get_queue(queue_name)
-  @bunny_connection.create_channel.queue(queue_name, passive: true)
-end

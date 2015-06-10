@@ -10,6 +10,9 @@ World(RSpec::Wait)
 require 'tef/keeper'
 #require_relative '../../spec/fake_publisher'
 
+# Common testing code
+require 'tef/development'
+World(TEF::Development)
 
 def tef_config
   !ENV['TEF_CONFIG'].nil? ? ENV['TEF_CONFIG'] : './config'
@@ -33,6 +36,7 @@ Before do
 
     @bunny_connection = Bunny.new(@bunny_url)
     @bunny_connection.start
+    @bunny_channel = @bunny_connection.create_channel
   rescue => e
     puts "Problem caught in Before hook: #{e.message}"
   end
@@ -51,15 +55,6 @@ end
 
 After do
   # Nothing yet...
-end
-
-# Getting a lot wet here...
-def get_queue(queue_name)
-  @bunny_connection.create_channel.queue(queue_name, passive: true)
-end
-
-def delete_queue(queue_name)
-  @bunny_connection.create_channel.queue_delete(queue_name)
 end
 
 def empty_queue(queue)

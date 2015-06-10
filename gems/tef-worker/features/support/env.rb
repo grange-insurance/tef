@@ -7,6 +7,12 @@ require 'socket'
 require 'rspec/wait'
 include RSpec::Wait
 
+
+# Common testing code
+require 'tef/development'
+World(TEF::Development)
+
+
 # require 'cucumber/rspec/doubles'
 # require_relative '../../spec/fake_publisher'
 
@@ -43,6 +49,7 @@ Before do
 
     @bunny_connection = Bunny.new(@bunny_url)
     @bunny_connection.start
+    @bunny_channel = @bunny_connection.create_channel
       #@default_file_directory = "#{File.dirname(__FILE__)}/../temp_files"
   rescue => e
     puts "caught a problem in a before hook: #{e.message}"
@@ -72,15 +79,6 @@ end
 # def process_path(path)
 #  path.sub('path/to', @default_file_directory)
 # end
-
-# Getting a little wet here...
-def get_queue(queue_name)
-  @bunny_connection.create_channel.queue(queue_name, passive: true)
-end
-
-def delete_queue(queue_name)
-  @bunny_connection.create_channel.queue_delete(queue_name)
-end
 
 def empty_queue(queue)
   queue.message_count.times do

@@ -77,12 +77,4 @@ SimpleCov.command_name 'tef-cucumber'
 #   DatabaseCleaner.clean
 # end
 #
-# def get_queue(queue_name)
-#   @bunny_channel.queue(queue_name, passive: true)
-# end
-#
-# def delete_queue(queue_name)
-#   @bunny_connection.create_channel.queue_delete(queue_name)
-# end
-#
 

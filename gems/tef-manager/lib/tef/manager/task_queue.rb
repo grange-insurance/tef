@@ -23,6 +23,11 @@ module TEF
       end
 
       def push(task_hash)
+        unless task_hash[:task_type]
+          warning = "Task #{task_hash[:guid]} has no task type: #{task_hash}"
+          @logger.warn warning
+        end
+
         task = Task.new
         task.load_hash(task_hash)
         task.status = 'ready'

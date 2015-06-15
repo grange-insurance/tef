@@ -122,6 +122,23 @@ describe 'TaskQueue, Integration' do
         expect(TEF::Manager::TaskResource.count).to eq(3)
       end
 
+      it 'logs when it queues a task that has no type' do
+        input_queue = create_fake_publisher(create_mock_channel)
+        @options[:input_queue] = input_queue
+        @test_task.delete(:task_type)
+        @test_task[:guid] = 'foo'
+
+        clazz.new(@options)
+        input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task))
+
+        # Just here to help save debugging time if something goes wrong
+        expect(@mock_logger).not_to have_received(:error)
+
+        expect(@mock_logger).to have_received(:warn).with(/task foo.*no task type.*#{Regexp.escape(@test_task.to_s)}/i)
+
+        # Still stores it
+        expect(TEF::Manager::Task.count).to eq(1)
+      end
     end
 
     describe 'task retrieving' do

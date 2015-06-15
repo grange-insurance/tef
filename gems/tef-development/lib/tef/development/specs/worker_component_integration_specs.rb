@@ -39,18 +39,95 @@ shared_examples_for 'a worker component, integration level' do
     expect(component.instance_variable_get(:@runner).logger).to eq(mock_logger)
   end
 
-  it 'complains if it cannot determine a root location at task execution time' do
-    @options[:root_location] = nil
-    @test_task[:task_data].delete(:root_location)
-    component = clazz.new(@options)
-
-    expect { component.work(@test_task) }.to raise_error(ArgumentError, /root.location.*cannot be determined.*provided.*variable/i)
-  end
-
   it 'can be stopped even if it has not been successfully started' do
     expect { @component.stop }.to_not raise_error
   end
 
+
+  describe 'doing work' do
+
+    it 'complains if it cannot determine a root location at task execution time' do
+      @options[:root_location] = nil
+      @test_task[:task_data].delete(:root_location)
+      component = clazz.new(@options)
+
+      expect { component.work(@test_task) }.to raise_error(ArgumentError, /root.location.*cannot be determined.*provided.*variable/i)
+    end
+
+    it 'gracefully handles errors encountered while working a task' do
+      input_queue = create_fake_publisher(create_mock_channel)
+      @options[:in_queue] = input_queue
+
+      mock_runner = double('mock runner')
+      allow(mock_runner).to receive(:work).and_raise(NameError, 'Kaboom!')
+      @options[:runner] = mock_runner
+
+      component = clazz.new(@options)
+
+      begin
+        component.start
+
+        expect { input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task)) }.to_not raise_error
+      ensure
+        component.stop
+      end
+    end
+
+    it 'logs if an error is encountered while working a task' do
+      mock_runner = double('mock runner')
+      allow(mock_runner).to receive(:work).and_raise(NameError, 'Kaboom!')
+      input_queue = create_fake_publisher(create_mock_channel)
+      mock_logger = create_mock_logger
+
+      @options[:logger] = mock_logger
+      @options[:in_queue] = input_queue
+      @options[:runner] = mock_runner
+      component = clazz.new(@options)
+
+      begin
+        component.start
+
+        input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task))
+        expect(mock_logger).to have_received(:error).with(/error raised.*NameError - Kaboom!/i)
+      ensure
+        component.stop
+      end
+
+    end
+
+    it 'gracefully handles tasks without task data' do
+      input_queue = create_fake_publisher(create_mock_channel)
+      @options[:in_queue] = input_queue
+      component = clazz.new(@options)
+
+      begin
+        component.start
+
+        @test_task.delete(:task_data)
+
+        expect { input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task)) }.to_not raise_error
+      ensure
+        component.stop
+      end
+    end
+
+    it 'gracefully handles tasks with non-hash task data' do
+      input_queue = create_fake_publisher(create_mock_channel)
+      @options[:in_queue] = input_queue
+      component = clazz.new(@options)
+
+      begin
+        component.start
+
+        @test_task[:task_data] = 'foo'
+
+        expect { input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task)) }.to_not raise_error
+      ensure
+        component.stop
+      end
+    end
+
+  end
 
   describe 'worker heartbeat' do
 

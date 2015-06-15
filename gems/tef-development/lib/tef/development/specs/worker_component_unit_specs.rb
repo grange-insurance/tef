@@ -3,6 +3,10 @@ shared_examples_for 'a worker component, unit level' do |clazz|
   it_should_behave_like 'a configured component', clazz
 
 
+  # todo - rewrite the rest fo this file with :let syntax
+  let(:mock_logger) { create_mock_logger }
+
+
   before(:each) do
     @test_task = {
         type: "task",
@@ -116,29 +120,60 @@ shared_examples_for 'a worker component, unit level' do |clazz|
     expect(worker.name).to eq('foo')
   end
 
-  it 'can do work' do
-    expect(@component).to respond_to(:work)
-  end
+  describe 'doing work' do
 
-  it 'works a task' do
-    expect(@component.method(:work).arity).to eq(1)
-  end
+    it 'can do work' do
+      expect(@component).to respond_to(:work)
+    end
 
-  it 'complains if a worked task does not include task data' do
-    @test_task.delete(:task_data)
+    it 'works a task' do
+      expect(@component.method(:work).arity).to eq(1)
+    end
 
-    expect { @component.work(@test_task) }.to raise_error(ArgumentError, /must include.*task.data/i)
-  end
+    it 'complains if a worked task does not include task data' do
+      @test_task.delete(:task_data)
 
-  it 'delegates working a task to its provided task runner' do
-    mock_task_runner = double('mock task runner')
-    allow(mock_task_runner).to receive(:work)
-    @options[:runner] = mock_task_runner
-    @component = clazz.new(@options)
+      expect { @component.work(@test_task) }.to raise_error(ArgumentError, /must include.*task.data/i)
+    end
 
-    @component.work(@test_task)
+    it "complains if worked task's task data is not a hash" do
+      @test_task[:task_data] = 'foo'
 
-    expect(mock_task_runner).to have_received(:work).with(@test_task)
+      expect { @component.work(@test_task) }.to raise_error(ArgumentError, /task_data.*must be a Hash.*was #{@test_task[:task_data].class}/i)
+    end
+
+    it 'logs the tasks the it works' do
+      @options[:logger] = mock_logger
+      component = clazz.new(@options)
+
+      component.work(@test_task)
+
+      expect(mock_logger).to have_received(:info).at_least(:once).with(/task received.*#{@test_task[:guid]}/i)
+    end
+
+    it 'logs the contents of the worked task' do
+      @options[:logger] = mock_logger
+      component = clazz.new(@options)
+
+      # Deep cloning the task since it will get modified while being worked
+      original_task = Marshal.load(Marshal.dump(@test_task))
+      component.work(@test_task)
+
+      expect(mock_logger).to have_received(:info).with(/task payload.*#{Regexp.escape(original_task.to_s)}/i)
+    end
+
+    it 'delegates working a task to its provided task runner' do
+      # todo - this runner mocking needs to be done for all tets or else these are integration tests
+      mock_task_runner = double('mock task runner')
+      allow(mock_task_runner).to receive(:work)
+      @options[:runner] = mock_task_runner
+      @component = clazz.new(@options)
+
+      @component.work(@test_task)
+
+      expect(mock_task_runner).to have_received(:work).with(@test_task)
+    end
+
   end
 
 end

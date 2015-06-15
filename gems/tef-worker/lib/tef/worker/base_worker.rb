@@ -49,7 +49,19 @@ module TEF
         ##begin
 
         # todo - how to handle a bad task?
-        raise(ArgumentError, ':task must include a :task_data key') unless task.has_key?(:task_data)
+        unless task.has_key?(:task_data)
+          # Need to make sure that it is a Hash for proper error handling and data storage
+          task[:task_data] = {}
+          raise(ArgumentError, ':task must include a :task_data key')
+        end
+
+        unless task[:task_data].is_a?(Hash)
+          received_type = task[:task_data].class
+
+          # Need to make sure that it is a Hash for proper error handling and data storage
+          task[:task_data] = {}
+          raise(ArgumentError, ":task_data must be a Hash of task data. Was #{received_type}")
+        end
         # raise(ArgumentError, ':task_data must include a :working_directory key') unless task[:task_data].has_key? :working_directory
 
         # todo - need some more testing here
@@ -144,7 +156,7 @@ module TEF
             rescue Exception => ex
               task[:task_data][:results] ||= []
               task[:task_data][:results] = "ERROR: #{ex.message}"
-              @logger.error "Error raised in :work #{ex.message}"
+              @logger.error "Error raised in #work: #{ex.class} - #{ex.message}"
             end
 
             begin

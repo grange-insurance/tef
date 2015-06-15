@@ -1,5 +1,3 @@
-#todo - have to rewrite this to not be a tef-cucumber based use case
-@wip
 Feature: End to end acceptance testing
 
   Everything should work!
@@ -8,10 +6,9 @@ Feature: End to end acceptance testing
   Background: Clean workspace
     * no TEF nodes are running
 
-  Scenario: Cucumber task
-    Given a queuebert node is running
+  Scenario: Basic task handling
     And a manager node is running
-    And a cuke worker node is running
-    And a cuke keeper node is running
-    When  a request for a test suite is sent
-    Then results for the executed tests are stored by the keeper
+    And worker nodes are running
+    And a keeper node is running
+    When tasks are sent to the manager
+    Then the result for the executed tasks are handled by the keeper

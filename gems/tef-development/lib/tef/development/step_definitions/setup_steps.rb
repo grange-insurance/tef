@@ -27,6 +27,21 @@ And(/^a manager node is running$/) do
   Process.detach(@manager_pid)
 end
 
+And(/^a worker node is running$/) do
+  @worker_pid = Process.spawn('start "Worker" cmd /c bundle exec start_tef_worker')
+  Process.detach(@worker_pid)
+end
+
+And(/^(?:"([^"]*)" )?worker nodes are running$/) do |worker_count|
+  @worker_pids ||= []
+  worker_count = worker_count ? worker_count.to_i : 5
+
+  worker_count.times do
+    @worker_pids << Process.spawn('start "Worker" cmd /c bundle exec start_tef_worker')
+    Process.detach(@worker_pids.last)
+  end
+end
+
 And(/^no TEF nodes are running$/) do
   kill_existing_tef_processes
 end

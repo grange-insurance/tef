@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require 'tef/keeper'
+
+
+options = {}
+options[:keeper_type] = 'generic'
+options[:callback] = lambda { |delivery_info, properties, payload, logger|
+  logger.info("Received a #{payload[:type]} message")
+  logger.info("GUID is #{payload[:guid]}")
+}
+options[:out_queue] = 'keeper.test.output'
+
+keeper_node = TEF::Keeper::Keeper.new(options)
+keeper_node.start
+
+begin
+  loop do
+    sleep 1
+  end
+rescue Interrupt => _
+  keeper_node.stop
+
+  exit(0)
+end

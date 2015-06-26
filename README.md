@@ -40,3 +40,33 @@ To use the Task Execution Framework, you will need instances of the following:
  - [**Worker**](https://github.com/grange-insurance/tef/blob/master/gems/tef-worker/README.md)
  - [**Keeper**](https://github.com/grange-insurance/tef/blob/master/gems/tef-keeper/README.md)
  
+Anatomy of a Task
+=========
+
+TEF tasks are shuffled around in a JSON envelope.  The envelope contains just enough information to route the task. The **task_data** field contains the meat of the task, including its input and output data.
+
+The properties of a task are as follows:
+
+ * **type**          - A string identifying the type of of message, for tasks this is "task" 
+ * **task_type**     - A string identifying the type of task this is.
+ * **guid**          - A GUID that uniquely identifies this task  
+ * **priority**      - A numeric value indicating how important a task is (higher numbers are better). More important tasks will be dispatched to workers before less important tasks.
+ * **resources**     - A pipe delimited list of resource names this task depends on.
+ * **time_limit**    - How long can this task be in the "working" state before being considered stalled and getting redispatched.
+ * **task_data**     - An arbitrary blob of data to be consumed by the task specific workers and keepers.
+ * **suite_guid**    - A GUID that can be used to group tasks into a common group.
+
+
+Below is an example task envelope for a hypothetical "echo" task.
+```json
+{
+  "type": "task",
+  "task_type": "echo",
+  "guid": "task_123456",
+  "priority": 5,
+  "resources": "pipe|delimited|list",
+  "time_limit": 600,
+  "task_data": {"message": "hello world"},
+  "suite_guid": "task_suite_7"  
+}
+```

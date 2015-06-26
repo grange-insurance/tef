@@ -1,48 +1,54 @@
 TEF Manager
 =========
 
-The TEF Manager is responsible for dispatching tasks to the workers.
+The TEF Manager is responsible for dispatching tasks to the workers. The manager distributes tasks to workers based on the availability of the resources needed by a task and the availability of workers of a type corresponding to the type of the task.
+
+
+Getting Started
+=========
+
+To run the manager service on a machine:
+
+* Set the environmental variables that the manager will use to configure itself (see below)
+* Install the manager gem
+ ```
+ gem install tef-manager
+ ```
+* Run the provided service binary
+ ```
+ start_tef_manager
+ ```
+* Start sending tasks to the manager via RabbitMQ
 
 
 Important Environment Variables
 =========
- * **TEF_ENV** - Determines the environment you're running in.  This should be one of: dev, test or prod.  It defaults to dev
- * **TEF_CONFIG** - The path to the folder containing the config files for the tef.
- * **TEF_AMQP_URL** - The URL that maps to a RabbmitMQ instance e.g. "amqp://guest:guest@localhost:5672" 
+ * **TEF_ENV** - Determines the environment you're running in.  This should be one of: dev, test or prod.  It defaults to dev.
+ * **TEF_AMQP_URL_(TEF_ENV value)** - The URL that maps to the RabbmitMQ instance that the manager will use to communicate with other parts of the TEF (e.g. "amqp://guest:guest@localhost:5672"). 
+ * **TEF_CONFIG** - The path to the folder containing the database configuration files for the manager.
+ * **TEF_ETCD_HOST_(TEF_ENV value)** - The host that is running the Etcd instance that the manager will use to track resource usage (e.g. "127.0.0.1"). 
+ * **TEF_ETCD_PORT_(TEF_ENV value)** - The port number used by the Etcd instance (e.g. "4001"). 
 
 
-
-Anatomy of a Task
+A Manager's view of a task
 =========
 
-TEF tasks are shuffled around in a JSON envelope.  The envelope contains just enough information to route the task. The **task_data** field contains the meat of the task, but the Manager does not touch this field.
+The manager only pays attention to the parts of a task needed to route the task to an appropriate worker.
+ 
+In the example task below, that would mean that the manager utilizes every field except for **task_data**.
 
-The properties of a task are as follows:
-
- * **type**          - A string identifying the type of of message, for tasks this is "task" 
- * **task_type**     - A string identifying the type of task this is.
- * **guid**          - A GUID that uniquely identifies this task  
- * **priority**      - A numeric value indicating how important a task is.  Higher numbers are better.
- * **resources**     - A pipe delimited list of resource names this task depends on.
- * **time_limit**    - How long can this task be in the "working" state before being considered stalled and getting redispatched.
- * **task_data**     - An arbitrary blob of data to be consumed by the task specific workers and keepers.
- * **suite_guid**    - A GUID that can be used to group tasks into a group.
-
-
-Below is an example task envelope for a hypothetical "echo" task.
 ```json
 {
   "type": "task",
   "task_type": "echo",
-  "guid": "a_guid",
+  "guid": "task_123456",
   "priority": 5,
   "resources": "pipe|delimited|list",
-  "time_limit": number_of_seconds,
-  "task_data": "ew0KICAibWVzc2FnZSI6ICJIZWxsbyBXb3JsZCINCn0=",
-  "suite_guid": "a_guid"  
+  "time_limit": 600,
+  "task_data": {"message": "hello world"},
+  "suite_guid": "task_suite_7"  
 }
 ```
-
 
 Dispatcher Control Messages
 ========= 
@@ -84,20 +90,9 @@ Status can be one of the following:
  }
  ```
 
-
-**remove_worker** - Removes a worker from the collective
- ```json
- {
-   "type": "remove_worker",
-   "name": "worker_foo"
- }
- ```
-  
 **get_workers** - Gets the list of workers with their status.  You must set reply_to and the correlation_id when making this request.
 ```json
 {
  "type": "get_workers"
 }
    ``` 
-
- 

@@ -47,7 +47,7 @@ def prod_gems
 end
 
 mode = ENV['BUNDLE_MODE'] || 'dev'
-puts "Bundler mode: #{ENV['BUNDLE_MODE']}"
+puts "Bundler mode: #{mode}"
 
 case mode
   when 'dev'

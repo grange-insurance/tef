@@ -28,7 +28,7 @@ def tef_env
 end
 
 def tef_config
-  !ENV['TEF_CONFIG'].nil? ? ENV['TEF_CONFIG'] : './config'
+  !ENV['TEF_MANAGER_DB_CONFIG'].nil? ? ENV['TEF_MANAGER_DB_CONFIG'] : './config'
 end
 
 

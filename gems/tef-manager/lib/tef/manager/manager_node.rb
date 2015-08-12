@@ -164,7 +164,7 @@ module TEF
       end
 
       def tef_config
-        !ENV['TEF_CONFIG'].nil? ? ENV['TEF_CONFIG'] : "#{File.dirname(__FILE__)}/../../../config"
+        !ENV['TEF_MANAGER_DB_CONFIG'].nil? ? ENV['TEF_MANAGER_DB_CONFIG'] : "#{File.dirname(__FILE__)}/../../../config"
       end
 
       #todo - this will get moved to and tested in the resource manager

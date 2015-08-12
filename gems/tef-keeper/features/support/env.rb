@@ -14,10 +14,6 @@ require 'tef/keeper'
 require 'tef/development'
 World(TEF::Development)
 
-def tef_config
-  !ENV['TEF_CONFIG'].nil? ? ENV['TEF_CONFIG'] : './config'
-end
-
 
 ENV['TEF_ENV'] ||= 'dev'
 ENV['TEF_AMQP_URL_DEV'] ||= 'amqp://localhost:5672'

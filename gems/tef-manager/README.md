@@ -25,7 +25,7 @@ Important Environment Variables
 =========
  * **TEF_ENV** - Determines the environment you're running in.  This should be one of: dev, test or prod.  It defaults to dev.
  * **TEF_AMQP_URL_(TEF_ENV value)** - The URL that maps to the RabbmitMQ instance that the manager will use to communicate with other parts of the TEF (e.g. "amqp://guest:guest@localhost:5672"). 
- * **TEF_CONFIG** - The path to the folder containing the database configuration files for the manager.
+ * **TEF_MANAGER_DB_CONFIG** - The path to the folder containing the database configuration files for the manager.
  * **TEF_ETCD_HOST_(TEF_ENV value)** - The host that is running the Etcd instance that the manager will use to track resource usage (e.g. "127.0.0.1"). 
  * **TEF_ETCD_PORT_(TEF_ENV value)** - The port number used by the Etcd instance (e.g. "4001"). 
 

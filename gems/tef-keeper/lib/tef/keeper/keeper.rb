@@ -90,13 +90,6 @@ module TEF
         @receiver = @receiver.new(@options)
       end
 
-
-      # Don't see this being used right now
-      #      def tef_config
-      #        !ENV['TEF_CONFIG'].nil? ? ENV['TEF_CONFIG'] : "#{File.dirname(__FILE__)}/../config"
-      #      end
-
-
     end
   end
 end

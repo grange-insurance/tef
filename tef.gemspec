@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['donavan.stanley@gmail.com', 'morrow748@gmail.com']
   spec.summary       = %q{A super awesome gem}
   spec.description   = %q{It deals with tasks.}
-  spec.homepage      = 'https://github.com/orgs/grange-insurance'
+  spec.homepage      = 'https://github.com/grange-insurance/tef'
   spec.license       = 'MIT'
 
   # Should figure out some kind of documentation to include as the gems files?

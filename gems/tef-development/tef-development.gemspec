@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Eric Kessler"]
   spec.email         = ["morrow748@gmail.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{A gem providing common code useful in the development of TEF components.}
+  spec.homepage      = 'https://github.com/grange-insurance/tef/tree/master/gems/tef-development'
+  spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"

@@ -23,7 +23,7 @@ db_config = File.open("#{File.dirname(__FILE__)}/../../test_db_config.yml") { |f
 TEF::Development::Testing.connect_to_test_db(db_config: db_config)
 
 require 'database_cleaner'
-DatabaseCleaner.strategy = :truncation, {only: %w(keeper_dev_features keeper_dev_scenarios keeper_dev_test_suites tef_dev_tasks tef_dev_task_resources)}
+DatabaseCleaner.strategy = :truncation, {only: %w(tef_dev_tasks tef_dev_task_resources)}
 DatabaseCleaner.start
 DatabaseCleaner.clean
 

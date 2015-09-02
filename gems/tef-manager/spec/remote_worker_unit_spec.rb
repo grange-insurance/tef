@@ -368,6 +368,10 @@ describe 'RemoteWorker, Unit' do
         expect(worker.status).to eq(:missing)
       end
 
+      it 'should do something else when a worker is both missing and stalled' do
+        skip('What should happen in this case?')
+      end
+
     end
 
 

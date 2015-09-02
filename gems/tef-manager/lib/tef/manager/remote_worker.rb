@@ -73,6 +73,7 @@ module TEF
 
         @task = task
         self.status = :dispatched
+        task.status = 'in progress'
         task.dispatched = Time.now
         task.save
 

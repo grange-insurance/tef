@@ -238,6 +238,15 @@ describe 'RemoteWorker, Unit' do
         expect(task.save_called).to eq(1) # Magic number that is checking for a DB update since this isn't an integration test where it would be inherently tested.
       end
 
+      it 'updates the status of the worked task' do
+        task = @fake_task
+
+        @worker.work(task)
+
+        expect(task.status).to eq('in progress')
+        expect(task.save_called).to eq(1) # Magic number that is checking for a DB update since this isn't an integration test where it would be inherently tested.
+      end
+
       it 'reserves resources when asked to do work' do
         @worker.work(@fake_task)
         expect(@mock_resource_manager).to have_received(:add_ref)

@@ -23,7 +23,7 @@ module TEF
 
         # A fake task that does not rely on the database
         class FakeTask
-          attr_accessor :task_type, :guid, :priority, :resources, :task_data, :suite_guid, :dispatched, :time_limit, :save_called, :destroy_called
+          attr_accessor :task_type, :guid, :priority, :resources, :task_data, :suite_guid, :dispatched, :time_limit, :save_called, :destroy_called, :status
 
           def initialize
             @task_type = 'echo'
@@ -37,6 +37,7 @@ module TEF
             @time_limit = nil
             @save_called = 0
             @destroy_called = 0
+            @status = nil
           end
 
           def save

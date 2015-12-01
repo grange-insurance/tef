@@ -53,7 +53,6 @@ shared_examples_for 'a wrapper component, integration level' do |message_queue_n
 
           begin
             component.start
-          rescue SystemExit
           ensure
             component.stop
           end

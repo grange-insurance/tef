@@ -22,7 +22,7 @@ module TEF
         end
 
         def create_mock_channel(exchange = create_mock_exchange)
-          mock_thing = double('mock_channel')
+          mock_thing = double('mock_channel').as_null_object
           allow(mock_thing).to receive(:default_exchange).and_return(exchange)
           allow(mock_thing).to receive(:generate_consumer_tag).and_return('123456789')
           allow(mock_thing).to receive(:number).and_return(1)

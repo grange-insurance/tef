@@ -3,7 +3,30 @@ module TEF
     module Testing
       module Mocks
 
-        def create_mock_task_queue(*tasks)
+        def create_mock_dispatcher_class(dispatcher = create_dispatcher)
+          mock_thing = double('mock dispatcher class')
+          allow(mock_thing).to receive(:new).and_return(dispatcher)
+
+          mock_thing
+        end
+
+        def create_mock_dispatcher
+          mock_thing = double('mock dispatcher')
+          allow(mock_thing).to receive(:name)
+          allow(mock_thing).to receive(:start)
+          allow(mock_thing).to receive(:stop)
+
+          mock_thing
+        end
+
+        def create_mock_task_queue_class(task_queue = create_mock_task_queue)
+          mock_thing = double('mock task queue class')
+          allow(mock_thing).to receive(:new).and_return(task_queue)
+
+          mock_thing
+        end
+
+        def create_mock_task_queue(tasks = [nil])
           mock_thing = double('mock task queue')
           allow(mock_thing).to receive(:pop).and_return(*tasks)
           allow(mock_thing).to receive(:push)
@@ -57,6 +80,19 @@ module TEF
         def create_mock_resource_manager_class(resource_manager = create_mock_resource_manager)
           mock_thing = double('mock resource manager class')
           allow(mock_thing).to receive(:new).and_return(resource_manager)
+
+          mock_thing
+        end
+
+        def create_mock_manager
+          mock_thing = double('mock manager').as_null_object
+
+          mock_thing
+        end
+
+        def create_mock_manager_class(manager = create_mock_manager)
+          mock_thing = double('mock manager class')
+          allow(mock_thing).to receive(:new).and_return(manager)
 
           mock_thing
         end

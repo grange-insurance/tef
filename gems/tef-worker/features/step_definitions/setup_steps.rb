@@ -24,7 +24,7 @@ And(/^worker message queues are available$/) do
   # previous step) instead of relying on the default queue names (which could change)
   @worker_queue_name = "tef.#{@tef_env}.worker.#{Socket.gethostname}.#{Process.pid}"
   @keeper_queue_name = "tef.#{@tef_env}.keeper.generic"
-  @manager_queue_name = "tef.#{@tef_env}.worker.control"
+  @manager_queue_name = "tef.#{@tef_env}.manager"
 
   @expected_queues = [@worker_queue_name, @keeper_queue_name, @manager_queue_name]
 

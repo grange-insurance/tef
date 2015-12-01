@@ -9,6 +9,10 @@ require 'tef/development/specs/service_component_integration_specs'
 require 'tef/development/specs/receiving_component_integration_specs'
 require 'tef/development/specs/receiving_component_unit_specs'
 require 'tef/development/specs/message_controlled_component_specs'
+require 'tef/development/specs/responsive_component_integration_specs'
+require 'tef/development/specs/responsive_component_unit_specs'
+require 'tef/development/specs/wrapper_component_integration_specs'
+require 'tef/development/specs/wrapper_component_unit_specs'
 
 
 require 'tef/development/testing/mocks'

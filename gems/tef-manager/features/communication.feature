@@ -14,37 +14,23 @@ Feature: Communication
   and the machine name and process id of the worker.
 
     Given the following message queues have not been yet been created:
-      | tef.<env>.task_queue.control |
-      | tef.<env>.dispatcher.control |
-      | tef.<env>.worker.control     |
+      | tef.<env>.manager |
     When a manager is started
     Then the following message queues have been created:
-      | tef.<env>.task_queue.control |
-      | tef.<env>.dispatcher.control |
-      | tef.<env>.worker.control     |
+      | tef.<env>.manager |
 
   Scenario: Custom prefix
     Given the following message queues have not been yet been created:
-      | my_custom.prefix.task_queue.control |
-      | my_custom.prefix.dispatcher.control |
-      | my_custom.prefix.worker.control     |
+      | my_custom.prefix.manager |
     And a name prefix of "my_custom.prefix"
     When a manager is started
     Then the following message queues have been created:
-      | my_custom.prefix.task_queue.control |
-      | my_custom.prefix.dispatcher.control |
-      | my_custom.prefix.worker.control     |
+      | my_custom.prefix.manager |
 
   Scenario: Custom queue names
     Given the following message queues have not been yet been created:
-      | special.task_queue.queue |
-      | special.dispatcher.queue |
-      | special.worker.queue     |
-    And a task queue queue name of "special.task_queue.queue"
-    And a dispatcher queue name of "special.dispatcher.queue"
-    And a worker queue name of "special.worker.queue"
+      | special.manager_queue |
+    And a manager queue queue name of "special.manager_queue"
     When a manager is started
     Then the following message queues have been created:
-      | special.task_queue.queue |
-      | special.dispatcher.queue |
-      | special.worker.queue     |
+      | special.manager_queue |

@@ -17,6 +17,8 @@ require 'tef/development/specs/service_component_unit_specs'
 require 'tef/development/specs/service_component_integration_specs'
 require 'tef/development/specs/rooted_component_unit_specs'
 require 'tef/development/specs/rooted_component_integration_specs'
+require 'tef/development/specs/wrapper_component_integration_specs'
+require 'tef/development/specs/wrapper_component_unit_specs'
 
 
 require 'tef/development/testing/fakes'

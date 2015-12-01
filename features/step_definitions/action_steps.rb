@@ -2,7 +2,7 @@ require 'tef/development/step_definitions/action_steps'
 
 And(/^tasks are sent to the manager$/) do
   # Manager needs to be ready
-  task_queue_name = "tef.#{@tef_env}.task_queue.control"
+  task_queue_name = "tef.#{@tef_env}.manager"
   wait_for { @bunny_connection.queue_exists?(task_queue_name) }.to be true
 
   @explicit_test_tasks = []

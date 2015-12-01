@@ -2,61 +2,43 @@ require 'spec_helper'
 require 'rspec/mocks/standalone'
 
 
-def default_options
-  {
-      logger: create_mock_logger,
-      in_queue: create_mock_queue,
-      out_queue: create_mock_queue,
-      manager_queue: create_mock_queue
-  }
-end
-
-
 describe 'WorkNode, Integration' do
 
-  clazz = TEF::Worker::WorkNode
+  let(:clazz) { TEF::Worker::WorkNode }
 
-  it_should_behave_like 'a logged component, integration level' do
-    let(:clazz) { clazz }
-    let(:configuration) { default_options }
-  end
+  let(:mock_logger) { create_mock_logger }
+  let(:mock_in_queue) { create_mock_queue }
+  let(:mock_out_queue) { create_mock_queue }
+  let(:mock_manager_queue) { create_mock_queue }
 
-  it_should_behave_like 'a service component, integration level' do
-    let(:clazz) { clazz }
-    let(:configuration) { default_options }
-  end
-
-  it_should_behave_like 'a receiving component, integration level', clazz, default_options, [:in_queue]
-  it_should_behave_like 'a sending component, integration level', clazz, default_options, [:out_queue, :manager_queue]
-
-  it_should_behave_like 'a rooted component, integration level' do
-    let(:clazz) { clazz }
-    let(:configuration) { default_options }
-  end
+  let(:configuration) { {logger: mock_logger,
+                         in_queue: mock_in_queue,
+                         out_queue: mock_out_queue,
+                         manager_queue: mock_manager_queue} }
+  let(:work_node) { clazz.new(configuration) }
 
 
-  before(:each) do
-    @mock_logger = create_mock_logger
-    @options = default_options
-    @options[:logger] = @mock_logger
-
-    @work_node = clazz.new(@options)
-  end
+  it_should_behave_like 'a logged component, integration level'
+  it_should_behave_like 'a service component, integration level'
+  it_should_behave_like 'a receiving component, integration level', [:in_queue]
+  it_should_behave_like 'a sending component, integration level', [:out_queue, :manager_queue]
+  it_should_behave_like 'a rooted component, integration level'
+  it_should_behave_like 'a wrapper component, integration level', [:in_queue, :out_queue, :manager_queue]
 
 
   it 'defaults to a basic worker class if one is not provided' do
-    @options.delete(:worker_class)
-    work_node = clazz.new(@options)
+    configuration.delete(:worker_class)
+    work_node = clazz.new(configuration)
 
     expect(work_node.instance_variable_get(:@worker)).to eq(TEF::Worker::BaseWorker)
   end
 
   it 'uses its own logging object when creating its worker' do
     mock_logger = create_mock_logger
-    @options[:logger] = mock_logger
-    @options.delete(:worker_class)
+    configuration[:logger] = mock_logger
+    configuration.delete(:worker_class)
 
-    work_node = clazz.new(@options)
+    work_node = clazz.new(configuration)
 
     begin
       work_node.start
@@ -68,9 +50,9 @@ describe 'WorkNode, Integration' do
   end
 
   it 'uses its own root location when creating its worker' do
-    @options[:root_location] = 'foo'
+    configuration[:root_location] = 'foo'
 
-    work_node = clazz.new(@options)
+    work_node = clazz.new(configuration)
 
     begin
       work_node.start
@@ -82,9 +64,9 @@ describe 'WorkNode, Integration' do
   end
 
   it 'uses its own name when creating its worker' do
-    @options[:name] = 'foo'
+    configuration[:name] = 'foo'
 
-    work_node = clazz.new(@options)
+    work_node = clazz.new(configuration)
 
     begin
       work_node.start

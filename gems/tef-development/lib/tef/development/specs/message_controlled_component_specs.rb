@@ -5,6 +5,7 @@ include TEF::Development::Testing::Mocks
 # from and what #start/#stop does
 shared_examples_for 'a message controlled component' do |clazz, queue_param_name|
 
+  # todo - finish rewriting this file using #let
   before(:each) do
     @test_task = test_task.dup
 
@@ -20,85 +21,6 @@ shared_examples_for 'a message controlled component' do |clazz, queue_param_name
     @component = clazz.new(@options)
   end
 
-  it 'acknowledges the messages that it handles' do
-    delivery_info = create_mock_delivery_info
-
-    begin
-      @component.start if needs_started
-
-      # A bad messages is enough for a quick unit test
-      @control_queue.call(delivery_info, create_mock_properties, 'this is not json')
-
-      expect(@mock_channel).to have_received(:acknowledge).with(delivery_info.delivery_tag, false)
-    ensure
-      @component.stop if needs_started
-    end
-  end
-
-
-  it 'can gracefully handle non-JSON messages' do
-    begin
-      @component.start if needs_started
-
-      expect { @control_queue.call(create_mock_delivery_info, create_mock_properties, 'this is not json') }.to_not raise_error
-    ensure
-      @component.stop if needs_started
-    end
-  end
-
-  it 'logs when it receives a non-JSON message' do
-    begin
-      @component.start if needs_started
-
-      @control_queue.call(create_mock_delivery_info, create_mock_properties, 'this is not json')
-
-      expect(@mock_logger).to have_received(:error).with(/CONTROL_FAILED\|PARSE_JSON\|\d+: unexpected token at 'this is not json'\|this is not json/)
-    ensure
-      @component.stop if needs_started
-    end
-  end
-
-  it 'replies to non-JSON messages with the caught error if requested' do
-    properties = create_mock_properties(:reply_to => 'some queue')
-
-    begin
-      @component.start if needs_started
-
-      @control_queue.call(create_mock_delivery_info, properties, 'this is not json')
-
-      expect(@mock_exchange).to have_received(:publish).with(/"response":.*CONTROL_FAILED\|PARSE_JSON\|\d+: unexpected token at 'this is not json'\|this is not json/, {:routing_key => properties.reply_to, :correlation_id => properties.correlation_id})
-    ensure
-      @component.stop if needs_started
-    end
-  end
-
-  it 'does not reply to non-JSON messages with the caught error if not requested' do
-    properties = create_mock_properties(:reply_to => nil)
-
-    begin
-      @component.start if needs_started
-
-      @control_queue.call(create_mock_delivery_info, properties, 'this is not json')
-
-      expect(@mock_exchange).to_not have_received(:publish)
-    ensure
-      @component.stop if needs_started
-    end
-  end
-
-  it 'does not replies to non-JSON messages if no correlation id is provided' do
-    properties = create_mock_properties(:reply_to => 'some queue', :correlation_id => nil)
-
-    begin
-      @component.start if needs_started
-
-      @control_queue.call(create_mock_delivery_info, properties, 'this is not json')
-
-      expect(@mock_exchange).to_not have_received(:publish)
-    ensure
-      @component.stop if needs_started
-    end
-  end
 
   it 'can gracefully handle JSON messages without a type on its control queue' do
     @test_task.delete(:type)

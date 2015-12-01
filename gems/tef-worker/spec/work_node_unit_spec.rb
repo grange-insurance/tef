@@ -2,49 +2,37 @@ require 'spec_helper'
 require 'rspec/mocks/standalone'
 
 
-def default_options
-  {
-      logger: create_mock_logger,
-      in_queue: create_mock_queue,
-      out_queue: create_mock_queue,
-      manager_queue: create_mock_queue
-  }
-end
-
-
 describe 'WorkNode, Unit' do
 
-  clazz = TEF::Worker::WorkNode
+  let(:clazz) { TEF::Worker::WorkNode }
 
+  let(:mock_logger) { create_mock_logger }
+  let(:mock_in_queue) { create_mock_queue }
+  let(:mock_out_queue) { create_mock_queue }
+  let(:mock_manager_queue) { create_mock_queue }
 
-  it_should_behave_like 'a loosely configured component', clazz
+  let(:configuration) { {logger: mock_logger,
+                         in_queue: mock_in_queue,
+                         out_queue: mock_out_queue,
+                         manager_queue: mock_manager_queue} }
 
 
   # todo - Even though there are defaults for most things, if they are actually using those defaults
   # instead of mocks then these are really integration tests. The above likely applies to a lot of tests
   # for these framework. Go check and deal with it all at once.
 
-  it_should_behave_like 'a service component, unit level' do
-    let(:clazz) { clazz }
-    let(:configuration) { default_options }
-  end
-
-  it_should_behave_like 'a receiving component, unit level', clazz, default_options, [:in_queue]
-  it_should_behave_like 'a sending component, unit level', clazz, default_options, [:out_queue, :manager_queue]
-
-  it_should_behave_like 'a logged component, unit level' do
-    let(:clazz) { clazz }
-    let(:configuration) { default_options }
-  end
-
-  it_should_behave_like 'a rooted component, unit level' do
-    let(:clazz) { clazz }
-    let(:configuration) { default_options }
-  end
+  it_should_behave_like 'a loosely configured component'
+  it_should_behave_like 'a service component, unit level'
+  it_should_behave_like 'a receiving component, unit level', [:in_queue]
+  it_should_behave_like 'a sending component, unit level', [:out_queue, :manager_queue]
+  it_should_behave_like 'a logged component, unit level'
+  it_should_behave_like 'a rooted component, unit level'
+  it_should_behave_like 'a wrapper component, unit level', [:in_queue, :out_queue, :manager_queue]
 
 
   describe 'instance level' do
 
+    # todo - finish #let-ifying these
     before(:each) do
       @mock_worker = double('mock worker')
       allow(@mock_worker).to receive(:start)
@@ -52,14 +40,13 @@ describe 'WorkNode, Unit' do
       @mock_worker_class = double('mock worker class')
       allow(@mock_worker_class).to receive(:new).and_return(@mock_worker)
 
-      @options = default_options
-      @work_node = clazz.new(@options)
+      @work_node = clazz.new(configuration)
     end
 
 
     it 'uses its worker class for creating a worker' do
-      @options[:worker_class] = @mock_worker_class
-      work_node = clazz.new(@options)
+      configuration[:worker_class] = @mock_worker_class
+      work_node = clazz.new(configuration)
 
       begin
         work_node.start
@@ -71,8 +58,8 @@ describe 'WorkNode, Unit' do
     end
 
     it 'starts its worker when it is started' do
-      @options[:worker_class] = @mock_worker_class
-      work_node = clazz.new(@options)
+      configuration[:worker_class] = @mock_worker_class
+      work_node = clazz.new(configuration)
 
       begin
         work_node.start
@@ -84,8 +71,8 @@ describe 'WorkNode, Unit' do
     end
 
     it 'stops its worker when it is stopped' do
-      @options[:worker_class] = @mock_worker_class
-      work_node = clazz.new(@options)
+      configuration[:worker_class] = @mock_worker_class
+      work_node = clazz.new(configuration)
 
       begin
         work_node.start
@@ -102,15 +89,15 @@ describe 'WorkNode, Unit' do
     end
 
     it 'can be provided a worker type when created' do
-      @options[:worker_type] = 'some work node type'
-      work_node = clazz.new(@options)
+      configuration[:worker_type] = 'some work node type'
+      work_node = clazz.new(configuration)
 
       expect(work_node.worker_type).to eq('some work node type')
     end
 
     it 'defaults to being a generic worker' do
-      @options.delete(:worker_type)
-      work_node = clazz.new(@options)
+      configuration.delete(:worker_type)
+      work_node = clazz.new(configuration)
 
       expect(work_node.worker_type).to eq('generic')
     end
@@ -133,8 +120,8 @@ describe 'WorkNode, Unit' do
     end
 
     it 'can be provided a name when created' do
-      @options[:name] = 'foo'
-      work_node = clazz.new(@options)
+      configuration[:name] = 'foo'
+      work_node = clazz.new(configuration)
 
       expect(work_node.name).to eq('foo')
     end
@@ -144,13 +131,13 @@ describe 'WorkNode, Unit' do
       old_env = ENV[env_var]
 
       logger = create_mock_logger
-      @options[:logger] = logger
+      configuration[:logger] = logger
 
       begin
-        @options.delete(:root_location)
+        configuration.delete(:root_location)
         ENV[env_var] = nil
 
-        clazz.new(@options)
+        clazz.new(configuration)
 
         expect(logger).to have_received(:warn).with(/root location.*not/)
       ensure

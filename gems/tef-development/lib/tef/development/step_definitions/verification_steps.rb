@@ -4,7 +4,7 @@ Then(/^the following message queues have been created:$/) do |queue_names|
   queue_names = queue_names.raw.flatten.map { |name| name.sub('<env>', @tef_env).sub('<name>', Socket.gethostname).sub('<pid>', Process.pid.to_s).sub('<worker_type>', @worker_type).sub('<keeper_type>', @keeper_type) }
 
   queue_names.each do |queue_name|
-    expect(@bunny_connection.queue_exists?(queue_name)).to be true
+    raise("Expected queue '#{queue_name}' to exist but it did not.") unless @bunny_connection.queue_exists?(queue_name)
   end
 end
 

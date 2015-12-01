@@ -2,52 +2,36 @@ require 'spec_helper'
 require 'rspec/mocks/standalone'
 
 
-def default_options
-  {
-      callback: double('mock callback'),
-      logger: create_mock_logger
-  }
-end
-
-
 describe 'Keeper, Integration' do
 
-  clazz = TEF::Keeper::Keeper
+  let(:clazz) { TEF::Keeper::Keeper }
+  let(:configuration) { {callback: double('mock callback'),
+                         logger: create_mock_logger} }
 
-  it_should_behave_like 'a service component, integration level' do
-    let(:clazz) { clazz }
-    let(:configuration) { default_options }
-  end
 
-  it_should_behave_like 'a receiving component, integration level', clazz, default_options, [:in_queue]
-  it_should_behave_like 'a sending component, integration level', clazz, default_options, [:out_queue]
-
-  it_should_behave_like 'a logged component, integration level' do
-    let(:clazz) { clazz }
-    let(:configuration) { default_options }
-  end
+  it_should_behave_like 'a service component, integration level'
+  it_should_behave_like 'a receiving component, integration level', [:in_queue]
+  it_should_behave_like 'a sending component, integration level', [:out_queue]
+  it_should_behave_like 'a logged component, integration level'
+  it_should_behave_like 'a wrapper component, integration level', [:in_queue, :out_queue]
 
 
   describe 'instance level' do
 
-    before(:each) do
-      @options = default_options
-    end
-
 
     it 'defaults to a basic receiver class if one is not provided' do
-      @options.delete(:receiver_class)
-      keeper = clazz.new(@options)
+      configuration.delete(:receiver_class)
+      keeper = clazz.new(configuration)
 
       expect(keeper.instance_variable_get(:@receiver)).to eq(TEF::Keeper::Receiver)
     end
 
     it 'uses its own logging object when creating its receiver' do
       mock_logger = create_mock_logger
-      @options[:logger] = mock_logger
-      @options.delete(:receiver_class)
+      configuration[:logger] = mock_logger
+      configuration.delete(:receiver_class)
 
-      keeper = clazz.new(@options)
+      keeper = clazz.new(configuration)
 
       # todo - will need to put the protection back if keeper starts to use heartbeats
       #begin
@@ -61,9 +45,9 @@ describe 'Keeper, Integration' do
 
     it 'passes along its callback for use by the receiver' do
       mock_callback = double('mock callback')
-      @options[:callback] = mock_callback
+      configuration[:callback] = mock_callback
 
-      keeper = clazz.new(@options)
+      keeper = clazz.new(configuration)
       keeper.start
 
       receiver = keeper.instance_variable_get(:@receiver)

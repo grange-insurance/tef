@@ -57,29 +57,78 @@ describe 'Manager, Integration' do
     end
 
 
-    describe 'control functionality' do
+    describe 'setting manager state' do
 
       let(:set_state_command) { {type: 'set_state', data: 'paused'} }
 
-      describe 'setting manager state' do
+      it 'sets the state of the manager in response to a state update message' do
+        control_queue = create_fake_publisher(create_mock_channel)
+        configuration[:input_queue] = control_queue
+        set_state_command[:data] = 'stopped'
 
-        it 'can be sent a control message for its state update control point' do
-          control_queue = create_fake_publisher(create_mock_channel)
-          configuration[:input_queue] = control_queue
-          set_state_command[:data] = 'stopped'
+        manager = clazz.new(configuration)
 
-          manager = clazz.new(configuration)
+        begin
+          manager.start
+          manager.set_state(:paused)
 
-          begin
-            manager.start
-            manager.state = :paused
+          control_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(set_state_command))
 
-            control_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(set_state_command))
+          expect(manager.state).to eq(:stopped)
+        ensure
+          manager.stop
+        end
+      end
 
-            expect(manager.state).to eq(:stopped)
-          ensure
-            manager.stop
-          end
+      it 'will complain if not provided with state data with which to set the state' do
+        control_queue = create_fake_publisher(create_mock_channel)
+        configuration[:input_queue] = control_queue
+        set_state_command.delete(:data)
+
+        manager = clazz.new(configuration)
+
+        begin
+          manager.start
+
+          expect { control_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(set_state_command)) }.to raise_error(ArgumentError, /INVALID_JSON\|NO_DATA/i)
+
+        ensure
+          manager.stop
+        end
+      end
+
+      it 'will complain if given an invalid state' do
+        control_queue = create_fake_publisher(create_mock_channel)
+        configuration[:input_queue] = control_queue
+        set_state_command[:data] = 'not an approved state'
+
+        manager = clazz.new(configuration)
+
+        begin
+          manager.start
+
+          expect { control_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(set_state_command)) }.to raise_error(ArgumentError, /INVALID_JSON\|INVALID_STATE\|#{set_state_command[:data]}/i)
+
+        ensure
+          manager.stop
+        end
+      end
+
+      it 'updates the state of the manager on a good state update' do
+        control_queue = create_fake_publisher(create_mock_channel)
+        configuration[:input_queue] = control_queue
+        set_state_command[:data] = :paused
+
+        manager = clazz.new(configuration)
+
+        begin
+          manager.start
+
+          control_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(set_state_command))
+
+          expect(manager.state).to eq(:paused)
+        ensure
+          manager.stop
         end
       end
 
@@ -395,14 +444,14 @@ describe 'Manager, Integration' do
 
           no_dispatch_states = [:paused, :stopped]
           no_dispatch_states.each do |state|
-            manager.state = state
+            manager.set_state(state)
 
             input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(dispatch_tasks_command))
 
             expect(mock_dispatcher).not_to have_received(:dispatch_tasks)
           end
 
-          manager.state = :running
+          manager.set_state(:running)
           input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(dispatch_tasks_command))
 
           expect(mock_dispatcher).to have_received(:dispatch_tasks)
@@ -420,7 +469,7 @@ describe 'Manager, Integration' do
         begin
           manager.start
 
-          manager.state = :non_runnning_state
+          manager.set_state(:non_runnning_state)
           input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(dispatch_tasks_command))
 
           expect(mock_logger).to have_received(:info).with(/not.*dispatching.*non_runnning_state/i)

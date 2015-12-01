@@ -120,22 +120,8 @@ describe 'Manager, Unit' do
       expect(manager).to respond_to(:state)
     end
 
-    it 'can change its state' do
-      expect(manager).to respond_to(:state=)
-
-      manager.state = 'foo'
-      expect(manager.state).to eq('foo')
-      manager.state = 'bar'
-      expect(manager.state).to eq('bar')
-    end
-
     it 'has an initial state of starting' do
       expect(manager.state).to eq(:starting)
-    end
-
-    it 'logs state changes' do
-      manager.state = 'foo'
-      expect(mock_logger).to have_received(:info).with('STATE_CHANGE|starting|foo')
     end
 
     it 'has a dispatch interval' do
@@ -163,61 +149,41 @@ describe 'Manager, Unit' do
     end
 
 
-    describe 'controlability' do
+    describe 'setting manager state' do
 
-      describe 'setting manager state' do
+      let(:set_state_command) { {type: 'set_state', data: 'paused'} }
 
-        let(:set_state_command) { {type: 'set_state', data: 'paused'} }
 
-        it 'has a control point that can set the state of the manager' do
-          expect(manager).to respond_to(:control_set_state)
-        end
-
-        it 'requires state data in order to control the state of the manager' do
-          expect(manager.method(:control_set_state).arity).to eq(1)
-        end
-
-        it 'will complain if not provided with state data with which to set the state' do
-          set_state_command.delete(:data)
-
-          expect { manager.control_set_state(set_state_command) }.to raise_error(ArgumentError, /INVALID_JSON\|NO_DATA/i)
-        end
-
-        it 'will complain if given an invalid state' do
-          set_state_command[:data] = 'not an approved state'
-
-          expect { manager.control_set_state(set_state_command) }.to raise_error(ArgumentError, /INVALID_JSON\|INVALID_STATE\|#{set_state_command[:data]}/i)
-        end
-
-        it 'can be set to a running state' do
-          set_state_command[:data] = :running
-
-          expect { manager.control_set_state(set_state_command) }.to_not raise_error
-        end
-
-        it 'can be set to a paused state' do
-          set_state_command[:data] = :paused
-
-          expect { manager.control_set_state(set_state_command) }.to_not raise_error
-        end
-
-        it 'can be set to a stopped state' do
-          set_state_command[:data] = :stopped
-
-          expect { manager.control_set_state(set_state_command) }.to_not raise_error
-        end
-
-        it 'updates the status of the manager on a good status update' do
-          set_state_command[:data] = :paused
-
-          manager.control_set_state(set_state_command)
-
-          expect(manager.state).to eq(:paused)
-        end
-
+      it 'can change its state' do
+        expect(manager).to respond_to(:set_state)
       end
 
+      it 'requires a new state to which it will be set' do
+        expect(manager.method(:set_state).arity).to eq(1)
+      end
 
+      it 'can be set to a running state' do
+        manager.set_state(:running)
+
+        expect(manager.state).to eq(:running)
+      end
+
+      it 'can be set to a paused state' do
+        manager.set_state(:paused)
+
+        expect(manager.state).to eq(:paused)
+      end
+
+      it 'can be set to a stopped state' do
+        manager.set_state(:stopped)
+
+        expect(manager.state).to eq(:stopped)
+      end
+
+      it 'logs state changes' do
+        manager.set_state(:running)
+        expect(mock_logger).to have_received(:info).with('STATE_CHANGE|starting|running')
+      end
     end
 
   end

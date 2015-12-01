@@ -4,70 +4,67 @@ include TEF::Development::Testing::Fakes
 
 shared_examples_for 'a worker component, integration level' do
 
-  before(:each) do
-    @test_task = {
-        type: "task",
-        task_type: "echo",
-        guid: "12345",
-        priority: 1,
-        resources: "foo",
-        time_limit: 10,
-        suite_guid: "67890",
-        task_data: {command: "echo 'Hello'",
-                    root_location: @default_file_directory}
-    }
+  # 'clazz' must be defined by an including scope
+  # 'configuration' must be defined by an including scope
 
-    @options = configuration.dup
-    @component = clazz.new(@options)
-  end
+  let(:test_task) { {type: "task",
+                     task_type: "echo",
+                     guid: "12345",
+                     priority: 1,
+                     resources: "foo",
+                     time_limit: 10,
+                     suite_guid: "67890",
+                     task_data: {command: "echo 'Hello'",
+                                 root_location: @default_file_directory}} }
+  let(:component) { clazz.new(configuration) }
 
 
   it 'provides a default runner if one is not provided' do
-    @options.delete(:runner)
-    component = clazz.new(@options)
+    configuration.delete(:runner)
+    component = clazz.new(configuration)
 
     expect(component.instance_variable_get(:@runner)).to_not be_nil
   end
 
   it 'uses its own logging object when providing a default runner' do
     mock_logger = create_mock_logger
-    @options[:logger] = mock_logger
-    @options.delete(:runner)
+    configuration[:logger] = mock_logger
+    configuration.delete(:runner)
 
-    component = clazz.new(@options)
+    component = clazz.new(configuration)
 
     expect(component.instance_variable_get(:@runner).logger).to eq(mock_logger)
   end
 
   it 'can be stopped even if it has not been successfully started' do
-    expect { @component.stop }.to_not raise_error
+    expect { component.stop }.to_not raise_error
   end
 
 
   describe 'doing work' do
 
     it 'complains if it cannot determine a root location at task execution time' do
-      @options[:root_location] = nil
-      @test_task[:task_data].delete(:root_location)
-      component = clazz.new(@options)
+      configuration[:root_location] = nil
+      test_task[:task_data].delete(:root_location)
+      component = clazz.new(configuration)
 
-      expect { component.work(@test_task) }.to raise_error(ArgumentError, /root.location.*cannot be determined.*provided.*variable/i)
+      expect { component.work(test_task) }.to raise_error(ArgumentError, /root.location.*cannot be determined.*provided.*variable/i)
     end
 
     it 'gracefully handles errors encountered while working a task' do
       input_queue = create_fake_publisher(create_mock_channel)
-      @options[:in_queue] = input_queue
+      configuration[:in_queue] = input_queue
 
       mock_runner = double('mock runner')
       allow(mock_runner).to receive(:work).and_raise(NameError, 'Kaboom!')
-      @options[:runner] = mock_runner
+      configuration[:runner] = mock_runner
 
-      component = clazz.new(@options)
+      component = clazz.new(configuration)
 
       begin
         component.start
 
-        expect { input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task)) }.to_not raise_error
+        expect { input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(test_task)) }.to_not raise_error
       ensure
         component.stop
       end
@@ -79,15 +76,15 @@ shared_examples_for 'a worker component, integration level' do
       input_queue = create_fake_publisher(create_mock_channel)
       mock_logger = create_mock_logger
 
-      @options[:logger] = mock_logger
-      @options[:in_queue] = input_queue
-      @options[:runner] = mock_runner
-      component = clazz.new(@options)
+      configuration[:logger] = mock_logger
+      configuration[:in_queue] = input_queue
+      configuration[:runner] = mock_runner
+      component = clazz.new(configuration)
 
       begin
         component.start
 
-        input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task))
+        input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(test_task))
         expect(mock_logger).to have_received(:error).with(/error raised.*NameError - Kaboom!/i)
       ensure
         component.stop
@@ -97,15 +94,15 @@ shared_examples_for 'a worker component, integration level' do
 
     it 'gracefully handles tasks without task data' do
       input_queue = create_fake_publisher(create_mock_channel)
-      @options[:in_queue] = input_queue
-      component = clazz.new(@options)
+      configuration[:in_queue] = input_queue
+      component = clazz.new(configuration)
 
       begin
         component.start
 
-        @test_task.delete(:task_data)
+        test_task.delete(:task_data)
 
-        expect { input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task)) }.to_not raise_error
+        expect { input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(test_task)) }.to_not raise_error
       ensure
         component.stop
       end
@@ -113,15 +110,15 @@ shared_examples_for 'a worker component, integration level' do
 
     it 'gracefully handles tasks with non-hash task data' do
       input_queue = create_fake_publisher(create_mock_channel)
-      @options[:in_queue] = input_queue
-      component = clazz.new(@options)
+      configuration[:in_queue] = input_queue
+      component = clazz.new(configuration)
 
       begin
         component.start
 
-        @test_task[:task_data] = 'foo'
+        test_task[:task_data] = 'foo'
 
-        expect { input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task)) }.to_not raise_error
+        expect { input_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(test_task)) }.to_not raise_error
       ensure
         component.stop
       end
@@ -145,17 +142,17 @@ shared_examples_for 'a worker component, integration level' do
 
       # This one gets the non-heartbeat updates
       @mock_manager_queue = create_mock_queue(mock_channel)
-      @options[:status_interval] = @test_interval
-      @options[:manager_queue] = @mock_manager_queue
+      configuration[:status_interval] = @test_interval
+      configuration[:manager_queue] = @mock_manager_queue
 
-      @component = clazz.new(@options)
+      component = clazz.new(configuration)
     end
 
     it "starting the service starts the worker's heartbeat" do
       expect(@mock_manager_copy).to_not have_received(:publish) # Not beating
 
       begin
-        @component.start
+        component.start
 
         # Multi-threadedness is not an exact science. This should be enough of a buffer that even particularly
         # sleepy threads have time to do their thing.
@@ -165,7 +162,7 @@ shared_examples_for 'a worker component, integration level' do
         expect(@mock_manager_copy).to have_received(:publish).at_least(:once) # Now beating
       ensure
         # Don't want the heartbeat thread to keep going once the test is over
-        @component.stop
+        component.stop
       end
     end
 
@@ -173,13 +170,13 @@ shared_examples_for 'a worker component, integration level' do
       expect(@mock_manager_copy).to_not have_received(:publish) # Not beating
 
       begin
-        @component.start
+        component.start
 
         # Multi-threadedness is not an exact science. This should be enough of a buffer that even particularly
         # sleepy threads have time to do their thing.
         sleep(@test_interval + 0.1)
 
-        @component.stop
+        component.stop
 
         # And another interval to give it a chance to not stop
         sleep(@test_interval + 0.1)
@@ -187,15 +184,15 @@ shared_examples_for 'a worker component, integration level' do
         expect(@mock_manager_copy).to have_received(:publish).once # Should have had time for only one beat before being stopped
       ensure
         # Don't want the heartbeat thread to keep going once the test is over
-        @component.stop
+        component.stop
       end
     end
 
     it 'heartbeats at least once before waiting for its status interval' do
       really_long_test_interval = 600
-      @options[:status_interval] = really_long_test_interval
+      configuration[:status_interval] = really_long_test_interval
 
-      component = clazz.new(@options)
+      component = clazz.new(configuration)
 
       begin
         component.start
@@ -211,7 +208,7 @@ shared_examples_for 'a worker component, integration level' do
       expect(@mock_manager_copy).to_not have_received(:publish) # Never beat yet
 
       begin
-        @component.start
+        component.start
 
         # Multi-threadedness is not an exact science. This should be enough of a buffer that even particularly
         # sleepy threads have time to do their thing.
@@ -223,7 +220,7 @@ shared_examples_for 'a worker component, integration level' do
         end
       ensure
         # Don't want the heartbeat thread to keep going once the test is over
-        @component.stop
+        component.stop
       end
     end
 
@@ -234,16 +231,16 @@ shared_examples_for 'a worker component, integration level' do
     it 'identifies itself as busy while working a task' do
       execution_intervals = 2
       fake_in_queue = create_fake_publisher(create_mock_channel)
-      @options[:in_queue] = fake_in_queue
+      configuration[:in_queue] = fake_in_queue
 
-      component = clazz.new(@options)
+      component = clazz.new(configuration)
 
       # Just going to ping the local host for a few seconds (plus one time since the first ping is immediate)
-      @test_task[:task_data][:command] = "ping -n #{execution_intervals + 1} 127.0.0.1"
+      test_task[:task_data][:command] = "ping -n #{execution_intervals + 1} 127.0.0.1"
 
       begin
         component.start
-        fake_in_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task))
+        fake_in_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(test_task))
 
         received_messages = []
         expect(@mock_manager_copy).to have_received(:publish).at_least(:once) do |arg|
@@ -262,14 +259,14 @@ shared_examples_for 'a worker component, integration level' do
     it 'updates its manager when it begins working a task (instead of waiting until the next status interval)' do
       really_long_test_interval = 600
       fake_in_queue = create_fake_publisher(create_mock_channel)
-      @options[:status_interval] = really_long_test_interval
-      @options[:in_queue] = fake_in_queue
+      configuration[:status_interval] = really_long_test_interval
+      configuration[:in_queue] = fake_in_queue
 
-      component = clazz.new(@options)
+      component = clazz.new(configuration)
 
       begin
         component.start
-        fake_in_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task))
+        fake_in_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(test_task))
 
         received_messages = []
         expect(@mock_manager_queue).to have_received(:publish).at_least(:once) do |arg|
@@ -288,13 +285,13 @@ shared_examples_for 'a worker component, integration level' do
     it 'goes back to being idle once it is finished working a task' do
       execution_intervals = 2
       fake_in_queue = create_fake_publisher(create_mock_channel)
-      @options[:in_queue] = fake_in_queue
+      configuration[:in_queue] = fake_in_queue
 
-      component = clazz.new(@options)
+      component = clazz.new(configuration)
 
       begin
         component.start
-        fake_in_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task))
+        fake_in_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(test_task))
 
         # Give it some time to be done working and go back to an idle state
         sleep((@test_interval * execution_intervals) + @test_interval)
@@ -322,14 +319,14 @@ shared_examples_for 'a worker component, integration level' do
     it 'updates its manager when it finishes working a task (instead of waiting until the next status interval)' do
       really_long_test_interval = 600
       fake_in_queue = create_fake_publisher(create_mock_channel)
-      @options[:status_interval] = really_long_test_interval
-      @options[:in_queue] = fake_in_queue
+      configuration[:status_interval] = really_long_test_interval
+      configuration[:in_queue] = fake_in_queue
 
-      component = clazz.new(@options)
+      component = clazz.new(configuration)
 
       begin
         component.start
-        fake_in_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(@test_task))
+        fake_in_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(test_task))
 
         received_messages = []
         expect(@mock_manager_queue).to have_received(:publish).at_least(:once) do |arg|

@@ -3,14 +3,12 @@ require 'spec_helper'
 
 describe 'Executor, Unit' do
 
-  clazz = TaskRunner::Executor
+  let(:clazz) { TaskRunner::Executor }
+  let(:configuration) { {} }
 
 
-  it_should_behave_like 'a loosely configured component', clazz
-  it_should_behave_like 'a logged component, unit level' do
-    let(:clazz) { clazz }
-    let(:configuration) { {} }
-  end
+  it_should_behave_like 'a loosely configured component'
+  it_should_behave_like 'a logged component, unit level'
 
 
   before(:each) do

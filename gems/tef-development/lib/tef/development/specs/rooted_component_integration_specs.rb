@@ -1,9 +1,7 @@
 shared_examples_for 'a rooted component, integration level' do
 
-  before(:each) do
-    @options = configuration.dup
-  end
-
+  # 'clazz' must be defined by an including scope
+  # 'configuration' must be defined by an including scope
 
   it 'root location defaults to an environmental variable if not provided at creation' do
     env_var = 'TEF_WORK_NODE_ROOT_LOCATION'
@@ -11,9 +9,9 @@ shared_examples_for 'a rooted component, integration level' do
 
     begin
       ENV[env_var] = 'some root location'
-      @options.delete(:root_location)
+      configuration.delete(:root_location)
 
-      component = clazz.new(@options)
+      component = clazz.new(configuration)
 
       expect(component.root_location).to eq('some root location')
     ensure

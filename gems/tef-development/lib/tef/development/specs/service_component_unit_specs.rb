@@ -1,22 +1,17 @@
-require_relative '../testing/mocks'
-include TEF::Development::Testing::Mocks
-
 shared_examples_for 'a service component, unit level' do
 
-  before(:each) do
-    @mock_logger = create_mock_logger
+  # 'clazz' must be defined by an including scope
+  # 'configuration' must be defined by an including scope
 
-    @options = configuration.dup
-    @component = clazz.new(@options)
-  end
+  let(:component) { clazz.new(configuration) }
 
 
   it 'can be started' do
-    expect(@component).to respond_to(:start)
+    expect(component).to respond_to(:start)
   end
 
   it 'can be stopped' do
-    expect(@component).to respond_to(:stop)
+    expect(component).to respond_to(:stop)
   end
 
 end

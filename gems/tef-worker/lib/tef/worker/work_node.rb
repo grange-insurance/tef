@@ -22,7 +22,7 @@ module TEF
         @queue_prefix = options.fetch(:queue_prefix, "tef.#{tef_env}")
         @worker_queue = options.fetch(:in_queue, "#{@queue_prefix}.worker.#{Socket.gethostname}.#{Process.pid}")
         @keeper_queue = options.fetch(:out_queue, "#{@queue_prefix}.keeper.#{@worker_type}")
-        @manager_queue = options.fetch(:manager_queue, "#{@queue_prefix}.worker.control")
+        @manager_queue = options.fetch(:manager_queue, "#{@queue_prefix}.manager")
         @name = options.fetch(:name, "#{Socket.gethostname}.#{Process.pid}")
 
         @logger.info('Worker created.')

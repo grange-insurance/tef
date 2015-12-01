@@ -12,7 +12,7 @@ module TEF
       # todo - pull these and other exit codes out into TEF module constants
       EXIT_CODE_FAILED_QUEUE = 3
 
-      attr_reader :task_queue_name, :dispatcher_queue_name, :worker_queue_name
+      attr_reader :manager_queue_name
 
 
       def initialize(options = {})
@@ -24,17 +24,18 @@ module TEF
       def start
         super
 
-        create_control_queues
+        create_message_queues
         init_database
         assemble_dispatcher
+        assemble_manager
 
-        @dispatcher.start
+        @manager.start
       end
 
       def stop
         # The dispatcher might not have been created and thus still be a Class instead
         # of an instance thereof
-        @dispatcher.stop if @dispatcher.respond_to?(:stop)
+        @manager.stop if @manager.respond_to?(:stop)
 
         ActiveRecord::Base.remove_connection
 
@@ -53,12 +54,12 @@ module TEF
         @logger.progname = 'tef_manager'
 
 
+        @manager_queue = options.fetch(:manager_queue, "#{@queue_prefix}.manager")
+
+        @manager = options.fetch(:manager_class, TEF::Manager::Manager)
         @task_queue = options.fetch(:task_queue_class, TEF::Manager::TaskQueue)
-        @task_queues_queue = options.fetch(:task_queue, "#{@queue_prefix}.task_queue.control")
         @dispatcher = options.fetch(:dispatcher_class, TEF::Manager::Dispatcher)
-        @dispatcher_queue = options.fetch(:dispatcher_queue, "#{@queue_prefix}.dispatcher.control")
         @worker_collective = options.fetch(:worker_collective_class, TEF::Manager::WorkerCollective)
-        @worker_queue = options.fetch(:worker_queue, "#{@queue_prefix}.worker.control")
         @worker_update_interval = options.fetch(:worker_update_interval, 30)
 
         @resource_manager = options.fetch(:resource_manager_class, ResMan::Manager)
@@ -73,24 +74,17 @@ module TEF
 
       end
 
-
-      def create_control_queues
-        @logger.info('Creating control queues')
+      def create_message_queues
+        @logger.info('Creating message queues')
 
         begin
-          channel = @connection.create_channel
+          # Assume that an existing queue was provided if there is no connection
+          channel = @connection.create_channel if @connection
 
-          @task_queues_queue = channel.queue(@task_queues_queue, :durable => true) if @task_queues_queue.is_a?(String)
-          @task_queue_name = @task_queues_queue.name
-          @logger.info "Task queue: #{@task_queue_name} (channel #{channel.id})"
-
-          @dispatcher_queue = channel.queue(@dispatcher_queue, durable: true) if @dispatcher_queue.is_a?(String)
-          @dispatcher_queue_name = @dispatcher_queue.name
-          @logger.info "Dispatcher queue: #{@dispatcher_queue_name} (channel #{channel.id})"
-
-          @worker_queue = channel.queue(@worker_queue, durable: true) if @worker_queue.is_a?(String)
-          @worker_queue_name = @worker_queue.name
-          @logger.info "Worker queue: #{@worker_queue_name} (channel #{channel.id})"
+          @manager_queue = channel.queue(@manager_queue, :durable => true) if @manager_queue.is_a?(String)
+          @manager_queue_name = @manager_queue.name
+          # todo - update the relevant spec to also check for the channel id
+          @logger.info "Manager queue: #{@manager_queue_name} (channel #{@manager_queue.channel.id})"
         rescue => ex
           @logger.error("Failed to create control queues.  #{ex.message}")
           exit(EXIT_CODE_FAILED_QUEUE)
@@ -118,6 +112,19 @@ module TEF
         @logger.info('Creating resource manager')
         #todo - give this a real client id instead of a fake one
         @resource_manager = @resource_manager.new(@base_store_key, @resource_store, '123456')
+      end
+
+      def assemble_manager
+        manager_options = {
+            logger: @logger,
+            input_queue: @manager_queue,
+            task_queue: @task_queue,
+            worker_collective: @worker_collective,
+            dispatcher: @dispatcher
+        }
+
+        @logger.info('Creating manager')
+        @manager = @manager.new(manager_options)
       end
 
       def assemble_dispatcher

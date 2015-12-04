@@ -30,8 +30,8 @@ Additional services an be plugged into the framework in order to add more comple
 
 To use the Task Execution Framework, you will need instances of the following:
 
- - RabbitMQ - Used by all services to communicate with each other
- - ETCD - Use by the Manager to track resource availability
+ - [**RabbitMQ**](https://www.rabbitmq.com/) - Used by all services to communicate with each other
+ - [**ETCD**](https://github.com/coreos/etcd/releases/) - Use by the Manager to track resource availability
  - An ActiveRecord compatible database - Used by the Manager to keep track of tasks in the system
  
  The different TEF services can be run on the same machine or on separate machines with no change in their operation or configuration. For information on how to set up each service, see the documentation for each service.

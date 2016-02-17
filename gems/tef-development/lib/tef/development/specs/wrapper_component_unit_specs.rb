@@ -1,4 +1,4 @@
-shared_examples_for 'a wrapper component, unit level' do |message_queue_names|
+shared_examples_for 'a wrapper component, unit level' do |message_endpoint_names|
 
   describe 'unique wrapper behavior' do
 
@@ -8,10 +8,10 @@ shared_examples_for 'a wrapper component, unit level' do |message_queue_names|
     let(:component) { clazz.new(configuration) }
 
 
-    message_queue_names.each do |message_queue|
+    message_endpoint_names.each do |endpoint_name|
 
-      it "knows the name of its message queue (#{message_queue})" do
-        expect(component).to respond_to("#{message_queue}_name")
+      it "knows the name of its message exchange/queue (#{endpoint_name})" do
+        expect(component).to respond_to("#{endpoint_name}_name")
       end
 
     end

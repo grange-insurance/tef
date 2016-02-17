@@ -10,6 +10,14 @@ Given(/^the following message queues have not been yet been created:$/) do |queu
   end
 end
 
+Given(/^the following message exchanges have not been yet been created:$/) do |exchange_names|
+  exchange_names = exchange_names.raw.flatten.map { |name| name.sub('<env>', @tef_env) }
+
+  exchange_names.each do |exchange_name|
+    delete_exchange(exchange_name) if @bunny_connection.exchange_exists?(exchange_name)
+  end
+end
+
 And(/^a name prefix of "([^"]*)"$/) do |prefix|
   @prefix = prefix
 end

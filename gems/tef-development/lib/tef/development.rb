@@ -31,8 +31,16 @@ module TEF
       @bunny_channel.queue(queue_name, passive: true)
     end
 
+    def get_exchange(exchange_name)
+      @bunny_channel.queue(exchange_name)
+    end
+
     def delete_queue(queue_name)
       @bunny_channel.queue_delete(queue_name)
+    end
+
+    def delete_exchange(exchange_name)
+      @bunny_channel.exchange_delete(exchange_name)
     end
 
   end

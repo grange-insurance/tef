@@ -33,7 +33,7 @@ module TEF
         end
 
         def create_mock_exchange
-          mock_thing = double('mock_exchange')
+          mock_thing = double('mock_exchange').as_null_object
           allow(mock_thing).to receive(:publish)
           allow(mock_thing).to receive(:name).and_return('test_exchange')
 

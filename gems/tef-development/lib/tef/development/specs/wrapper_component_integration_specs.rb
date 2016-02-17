@@ -1,4 +1,4 @@
-shared_examples_for 'a wrapper component, integration level' do |message_queue_names|
+shared_examples_for 'a wrapper component, integration level' do |message_endpoint_names|
 
   describe 'unique wrapper behavior' do
 
@@ -17,10 +17,10 @@ shared_examples_for 'a wrapper component, integration level' do |message_queue_n
 
     describe 'initial setup' do
 
-      message_queue_names.each do |message_queue|
+      message_endpoint_names.each do |message_endpoint|
 
-        it "can be given a queue object instead of a queue name for its message queue (#{message_queue})" do
-          configuration[message_queue.to_sym] = mock_publisher
+        it "can be given an exchange/queue object instead of a name for its message endpoint (#{message_endpoint})" do
+          configuration[message_endpoint.to_sym] = mock_publisher
 
           begin
             expect {
@@ -32,22 +32,22 @@ shared_examples_for 'a wrapper component, integration level' do |message_queue_n
           end
         end
 
-        it "stores the name of its message queue for later use (#{message_queue})" do
-          configuration[message_queue.to_sym] = 'test_message_queue'
+        it "stores the name of its message endpoint for later use (#{message_endpoint})" do
+          configuration[message_endpoint.to_sym] = 'test_message_queue'
           component = clazz.new(configuration)
 
           begin
             component.start
 
-            expect(component.send("#{message_queue}_name")).to eq('test_message_queue')
+            expect(component.send("#{message_endpoint}_name")).to eq('test_message_queue')
           ensure
             component.stop
           end
         end
 
-        it "logs which message queue it created/connected to (#{message_queue})" do
+        it "logs which message endpoint it created/connected to (#{message_endpoint})" do
           allow(mock_queue).to receive(:name).and_return('test message queue')
-          configuration[message_queue.to_sym] = mock_queue
+          configuration[message_endpoint.to_sym] = mock_queue
           configuration[:logger] = mock_logger
           component = clazz.new(configuration)
 
@@ -57,7 +57,7 @@ shared_examples_for 'a wrapper component, integration level' do |message_queue_n
             component.stop
           end
 
-          expected_header = message_queue.to_s.gsub('_', ' ')
+          expected_header = message_endpoint.to_s.gsub('_', ' ')
 
           expect(mock_logger).to have_received(:info).with(/#{expected_header}: test message queue/i)
         end
@@ -85,10 +85,10 @@ shared_examples_for 'a wrapper component, integration level' do |message_queue_n
           Bunny::Channel.send(:define_method, :queue, @old_method)
         end
 
-        message_queue_names.each do |message_queue|
+        message_endpoint_names.each do |message_endpoint|
 
-          it "will exit if it cannot successfully create/connect to its message queue upon startup (#{message_queue})" do
-            configuration[message_queue.to_sym] = 'test message queue'
+          it "will exit if it cannot successfully create/connect to its message endpoint upon startup (#{message_endpoint})" do
+            configuration[message_endpoint.to_sym] = 'test message queue'
             component = clazz.new(configuration)
 
             begin
@@ -98,8 +98,8 @@ shared_examples_for 'a wrapper component, integration level' do |message_queue_n
             end
           end
 
-          it "logs if it cannot successfully create/connect to its message queue (#{message_queue})" do
-            configuration[message_queue.to_sym] = 'test message queue'
+          it "logs if it cannot successfully create/connect to its message endpoint (#{message_endpoint})" do
+            configuration[message_endpoint.to_sym] = 'test message queue'
             configuration[:logger] = mock_logger
             component = clazz.new(configuration)
 

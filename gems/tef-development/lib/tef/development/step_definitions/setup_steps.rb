@@ -30,22 +30,41 @@ And(/^a manager queue name of "([^"]*)"$/) do |queue_name|
   @manager_queue_name = queue_name
 end
 
-And(/^a manager node is running$/) do
-  @manager_pid = Process.spawn('start "Manager" cmd /c bundle exec start_tef_manager')
+And(/^a local manager node is running$/) do
+  # Assuming that the entire TEF project is present
+  here = File.dirname(__FILE__)
+  path_to_manager_binary = "#{here}/../../../../../tef-manager/bin/start_tef_manager"
+
+  # Assuming development on a Windows machine
+  @manager_pid = Process.spawn("start \"Manager\" cmd /c bundle exec ruby #{path_to_manager_binary}")
+
   Process.detach(@manager_pid)
 end
 
-And(/^a worker node is running$/) do
-  @worker_pid = Process.spawn('start "Worker" cmd /c bundle exec start_tef_worker')
+And(/^a local worker node is running$/) do
+  # Assuming that the entire TEF project is present
+  here = File.dirname(__FILE__)
+  path_to_worker_binary = "#{here}/../../../../../tef-worker/bin/start_tef_worker"
+
+  # Assuming development on a Windows machine
+  @worker_pid = Process.spawn("start \"Worker\" cmd /c bundle exec ruby #{path_to_worker_binary}")
+
   Process.detach(@worker_pid)
 end
 
-And(/^(?:"([^"]*)" )?worker nodes are running$/) do |worker_count|
+And(/^(?:"([^"]*)" )?local worker nodes are running$/) do |worker_count|
+  # Assuming that the entire TEF project is present
+  here = File.dirname(__FILE__)
+  puts "here: #{here}"
+  path_to_worker_binary = "#{here}/../../../../../tef-worker/bin/start_tef_worker"
+
   @worker_pids ||= []
   worker_count = worker_count ? worker_count.to_i : 5
 
   worker_count.times do
-    @worker_pids << Process.spawn('start "Worker" cmd /c bundle exec start_tef_worker')
+    # Assuming development on a Windows machine
+    @worker_pids << Process.spawn("start \"Worker\" cmd /c bundle exec ruby #{path_to_worker_binary}")
+
     Process.detach(@worker_pids.last)
   end
 end

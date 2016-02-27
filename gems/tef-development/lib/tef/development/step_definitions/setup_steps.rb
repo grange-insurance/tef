@@ -55,7 +55,6 @@ end
 And(/^(?:"([^"]*)" )?local worker nodes are running$/) do |worker_count|
   # Assuming that the entire TEF project is present
   here = File.dirname(__FILE__)
-  puts "here: #{here}"
   path_to_worker_binary = "#{here}/../../../../../tef-worker/bin/start_tef_worker"
 
   @worker_pids ||= []

@@ -16,49 +16,41 @@ Then(/^no data is stored for the result$/) do
   expect(result).to be_nil
 end
 
-Then(/^message in\/out queues for the keeper have been created$/) do
-  keeper_queues = [@keeper_queue_name, @outbound_queue_name].compact # Removing nils in case they haven't been set
+Then(/^message queues for the keeper have been created$/) do
+  in_queue_name = @keeper_queue_name
 
-  keeper_queues.each do |queue_name|
-    expect(@bunny_connection.queue_exists?(queue_name)).to be true
-  end
+  raise("Expected queue '#{in_queue_name}' to exist but it did not.") unless @bunny_connection.queue_exists?(in_queue_name)
+end
+
+Then(/^message exchanges for the keeper have been created$/) do
+  out_exchange_name = "tef.#{@tef_env}.generic.keeper_generated_messages"
+
+  raise("Expected exchange '#{out_exchange_name}' to exist but it did not.") unless @bunny_connection.exchange_exists?(out_exchange_name)
 end
 
 And(/^the keeper can still receive and send messages through them$/) do
-  pending("Not sure why this doesn't work")
-
   keeper_queue = get_queue(@keeper_queue_name)
-  outbound_queue = get_queue(@outbound_queue_name)
-
-  # puts "keeper queue: #{@keeper_queue_name}"
-  # puts "out queue: #{@outbound_queue_name}"
+  out_message_exchange = get_exchange(@output_exchange_name)
+  message_capture_queue = @bunny_channel.queue('test_message_capture_queue')
+  message_capture_queue.bind(out_message_exchange, routing_key: '#')
 
   # The only messages that we want are ones arriving after the restart
   empty_queue(keeper_queue)
-  empty_queue(outbound_queue)
 
   keeper_queue.publish(JSON.generate(@test_result))
 
   # Give the results a moment to get there
-  begin
-    until (outbound_queue.message_count > 0)
-      puts 'waiting for new message...'
-      sleep 5
-    end
-  rescue Interrupt => _
-    fail('The message never got dispatched!')
-  end
+  wait_for { message_capture_queue.message_count }.not_to eq(0)
 
-  received_tasks = []
-  outbound_queue.message_count.times do
-    received_tasks << outbound_queue.pop
+  received_messages = []
+  message_capture_queue.message_count.times do
+    received_messages << message_capture_queue.pop
   end
 
   payload_index = 2
-  puts "received tasks: #{received_tasks}"
-  received_tasks.map! { |result| JSON.parse(result[payload_index], symbolize_names: true)[:guid] }.flatten!
+  received_messages.map! { |result| JSON.parse(result[payload_index], symbolize_names: true)[:guid] }.flatten!
 
-  expect(received_tasks).to match_array([@test_result[:guid]])
+  expect(received_messages).to match_array([@test_result[:guid]])
 end
 
 Then(/the result is handled/) do
@@ -69,12 +61,13 @@ Then(/the result is handled/) do
   expect(@test_callback).to have_received(:call)
 end
 
-And(/the result is forwarded/) do
-  # todo - a fast but reliable method would be preferable instead of a sleep right here
-  # Give the results a moment to be processed
-  sleep 0.25
+And(/the result is forwarded and routed with "([^"]*)"$/) do |message_route|
+  # Give the messages a moment to get there
+  wait_for { @capture_message_queue.message_count }.not_to eq(0)
 
-  outbound_queue = get_queue(@outbound_queue_name)
+  @received_messages = messages_from_queue(@capture_message_queue.name)
 
-  expect(outbound_queue.message_count).to eq(1)
+  forwarded_message = @received_messages.first
+  expect(forwarded_message[:delivery_info][:routing_key]).to eq(message_route)
+  expect(forwarded_message[:body]['guid']).to eq(@test_result[:guid])
 end

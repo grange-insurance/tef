@@ -1,20 +1,11 @@
 require 'tef/development/step_definitions/verification_steps'
 
 And(/^the result for the executed tasks are handled by the keeper$/) do
-  output_queue_name = "keeper.test.output"
+  # Give the messages a moment to get there
+  wait_for { @capture_message_queue.message_count }.to eq(@explicit_test_tasks.count)
 
+  received_messages = messages_from_queue(@capture_message_queue.name)
+  received_messages.map! { |task| task[:body]['guid'] }.flatten
 
-  # Give the output a moment to get there
-  wait_for { @bunny_connection.queue_exists?(output_queue_name) }.to be true
-  queue = get_queue(output_queue_name)
-  wait_for { queue.message_count }.to eq(@explicit_test_tasks.count)
-
-  received_test_tasks = []
-  queue.message_count.times do
-    received_test_tasks << queue.pop
-  end
-
-  received_test_tasks.map! { |task| JSON.parse(task[2], symbolize_names: true)[:guid] }.flatten
-
-  expect(received_test_tasks).to match_array(@explicit_test_tasks)
+  expect(received_messages).to match_array(@explicit_test_tasks)
 end

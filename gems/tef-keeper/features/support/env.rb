@@ -38,14 +38,13 @@ Before do
   end
 end
 
+# Put Rabbit in a clean state between tests
 Before do
   begin
-    stdout, stderr, status = Open3.capture3('rabbitmqctl list_queues name')
-    queue_list = stdout.split("\n").slice(1..-2)
-
-    queue_list.each { |queue| delete_queue(queue) }
+    delete_all_message_queues
+    delete_test_message_exchanges
   rescue => e
-    puts "Problem caught in Before hook: #{e.message}"
+    puts "Exceptions caught in before hook: #{e.message}"
   end
 end
 
@@ -57,4 +56,40 @@ def empty_queue(queue)
   queue.message_count.times do
     queue.pop
   end
+end
+
+def messages_from_queue(queue_name)
+  queue = get_queue(queue_name)
+
+  messages = []
+  queue.message_count.times do
+    messages << queue.pop
+  end
+
+  # Extracting the payload portion of the messages
+  messages.map { |task|
+    {
+        delivery_info: task[0],
+        meta_data: task[1],
+        body: JSON.parse(task[2])
+    }
+  }.flatten
+end
+
+def delete_all_message_queues
+  stdout, stderr, status = Open3.capture3('rabbitmqctl list_queues name')
+  queue_list = stdout.split("\n").slice(1..-2)
+
+  queue_list.each { |queue| delete_queue(queue) }
+end
+
+def delete_test_message_exchanges
+  stdout, stderr, status = Open3.capture3('rabbitmqctl list_exchanges name')
+  exchange_list = stdout.split("\n").slice(1..-1)
+
+  # Don't want to delete Rabbit's own exchanges
+  exchange_list.delete('')
+  exchange_list.delete_if { |name| name =~ /amq/ }
+
+  exchange_list.each { |exchange| delete_exchange(exchange) }
 end

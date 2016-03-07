@@ -5,4 +5,4 @@ Feature: Working a task
   Scenario: Working a task
     Given a worker is started
     When it is given a task to work
-    Then the task is worked and the results sent to a keeper
+    Then the task is worked and the results are routed with "task"

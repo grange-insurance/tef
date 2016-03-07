@@ -3,23 +3,40 @@
 require 'tef/keeper'
 
 
+ENV['TEF_ENV'] ||= 'dev'
+ENV['TEF_AMQP_URL_DEV'] ||= 'amqp://localhost:5672'
+
+tef_env = ENV['TEF_ENV'].downcase
+bunny_url = ENV["TEF_AMQP_URL_#{tef_env}"]
+
+bunny_connection = Bunny.new(bunny_url)
+bunny_connection.start
+bunny_channel = bunny_connection.create_channel
+
+worker_exchange = bunny_channel.topic("tef.#{tef_env}.worker_generated_messages", durable: true)
+keeper_queue = bunny_channel.queue("tef.#{tef_env}.keeper.generic", durable: true)
+keeper_queue.bind(worker_exchange, routing_key: 'task')
+
+
 options = {}
 options[:keeper_type] = 'generic'
 options[:callback] = lambda { |delivery_info, properties, payload, logger|
   logger.info("Received a #{payload[:type]} message")
   logger.info("GUID is #{payload[:guid]}")
 }
-options[:out_queue] = 'keeper.test.output'
+options[:in_queue] = keeper_queue
+
 
 keeper_node = TEF::Keeper::Keeper.new(options)
 keeper_node.start
 
 begin
   loop do
-    sleep 1
+    sleep 60
   end
 rescue Interrupt => _
   keeper_node.stop
+  bunny_connection.stop
 
   exit(0)
 end

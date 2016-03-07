@@ -1,6 +1,11 @@
 require 'tef/development/step_definitions/action_steps'
 
 And(/^tasks are sent to the manager$/) do
+  # Need something hooked up before things start working that will capture output messages
+  out_message_exchange = "tef.#{@tef_env}.generic.keeper_generated_messages"
+  @capture_message_queue = @bunny_channel.queue('test_message_capture_queue')
+  @capture_message_queue.bind(out_message_exchange, routing_key: '#')
+
   # Manager needs to be ready
   task_queue_name = "tef.#{@tef_env}.manager"
   wait_for { @bunny_connection.queue_exists?(task_queue_name) }.to be true

@@ -6,12 +6,14 @@ Feature: Communication stability
   is important that a worker can smoothly reconnect and resume its previous work without loss of
   message data.
 
-  Scenario: Message queues persist through message service loss
+  Scenario: Message endpoints persist through message service loss
     Given a worker is started
     And worker message queues are available
+    And worker message exchanges are available
     When the message service goes down
     And the message service comes up
     Then the message queues are still available
+    Then the message exchanges are still available
     And the worker can still receive and send messages through them
 
 

@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require 'tef/worker'
+
+ENV['TEF_ENV'] ||= 'dev'
+ENV['TEF_AMQP_URL_DEV'] ||= 'amqp://localhost:5672'
+
+
+work_node = TEF::Worker::WorkNode.new
+work_node.start
+
+
+begin
+  loop do
+    sleep 60
+  end
+rescue Interrupt => _
+  work_node.stop
+
+  exit(0)
+end

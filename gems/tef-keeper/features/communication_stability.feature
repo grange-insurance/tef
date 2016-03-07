@@ -6,20 +6,17 @@ Feature: Communication stability
   can smoothly reconnect and resume its previous work without loss of message data.
 
 
-  Background:
-    Given a keeper queue name of "some.keeper.queue"
-    And an out queue name of "some.out.queue"
-
-
-  Scenario: Message queues persist through message service loss
+  Scenario: Message endpoints persist through message service loss
 
   Note: the keeper will need to requeue a task in order to make sure that all of its queues still work
 
     Given a keeper is started
     And the keeper message queues are available
+    And the keeper message exchanges are available
     When the message service goes down
     And the message service comes up
     Then the message queues are still available
+    And the message exchanges are still available
     And the keeper can still receive and send messages through them
 
 

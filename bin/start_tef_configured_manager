@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require 'tef/manager'
+
+ENV['TEF_ENV'] ||= 'dev'
+ENV['TEF_AMQP_URL_DEV'] ||= 'amqp://localhost:5672'
+
+
+manager_node = TEF::Manager::ManagerNode.new
+manager_node.start
+
+
+begin
+  loop do
+    sleep 60
+  end
+rescue Interrupt => _
+  manager_node.stop
+
+  exit(0)
+end

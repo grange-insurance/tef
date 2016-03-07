@@ -9,7 +9,7 @@ Then(/^the following message queues have been created:$/) do |queue_names|
 end
 
 Then(/^the following message exchanges have been created:$/) do |exchange_names|
-  exchange_names = exchange_names.raw.flatten.map { |name| name.sub('<env>', @tef_env) }
+  exchange_names = exchange_names.raw.flatten.map { |name| name.sub('<env>', @tef_env).sub('<keeper_type>', @keeper_type) }
 
   exchange_names.each do |exchange_name|
     raise("Expected exchange '#{exchange_name}' to exist but it did not.") unless @bunny_connection.exchange_exists?(exchange_name)

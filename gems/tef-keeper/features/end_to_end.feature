@@ -4,11 +4,6 @@ Feature: Handling a task result
   defined.
 
 
-  Background:
-    Given a keeper queue name of "some.keeper.queue"
-    And an out queue name of "some.out.queue"
-
-
   Scenario: Task result is processed
     Given a keeper is started
     When it is given a task result to handle
@@ -17,4 +12,5 @@ Feature: Handling a task result
   Scenario: Task result is passed along to the next TEF component
     Given a keeper is started
     When it is given a task result to handle
-    Then the result is forwarded
+    Then the result is forwarded and routed with "task"
+

@@ -11,7 +11,8 @@ Given(/^the following message queues have not been yet been created:$/) do |queu
 end
 
 Given(/^the following message exchanges have not been yet been created:$/) do |exchange_names|
-  exchange_names = exchange_names.raw.flatten.map { |name| name.sub('<env>', @tef_env) }
+  @worker_type ||= 'some_worker_type'
+  exchange_names = exchange_names.raw.flatten.map { |name| name.sub('<env>', @tef_env).sub('<worker_type>', @worker_type) }
 
   exchange_names.each do |exchange_name|
     delete_exchange(exchange_name) if @bunny_connection.exchange_exists?(exchange_name)

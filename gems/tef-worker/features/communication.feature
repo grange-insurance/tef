@@ -13,33 +13,33 @@ Feature: Communication
   Scenario: Default endpoint names
 
   Note: The default endpoint names incorporate the current environment (e.g. dev/test/prod)
-  and the machine name and process id of the worker.
+  and the machine name and process id of the worker, as well as the type of the worker.
 
     Given the following message queues have not been yet been created:
       | tef.<env>.worker.<name>.<pid> |
       | tef.<env>.manager             |
     And the following message exchanges have not been yet been created:
-      | tef.<env>.worker |
+      | tef.<env>.<worker_type>.worker_generated_messages |
     When a worker is started
     Then the following message queues have been created:
       | tef.<env>.worker.<name>.<pid> |
       | tef.<env>.manager             |
     And the following message exchanges have been created:
-      | tef.<env>.worker_generated_messages |
+      | tef.<env>.<worker_type>.worker_generated_messages |
 
   Scenario: Custom prefix
     Given the following message queues have not been yet been created:
       | my_custom.prefix.worker.<name>.<pid>  |
       | my_custom.prefix.manager             |
     And the following message exchanges have not been yet been created:
-      | my_custom.prefix.worker |
+      | my_custom.prefix.<worker_type>.worker_generated_messages |
     And a name prefix of "my_custom.prefix"
     When a worker is started
     Then the following message queues have been created:
       | my_custom.prefix.worker.<name>.<pid>  |
       | my_custom.prefix.manager             |
     And the following message exchanges have been created:
-      | my_custom.prefix.worker_generated_messages |
+      | my_custom.prefix.<worker_type>.worker_generated_messages |
 
   Scenario: Custom queue names
     Given the following message queues have not been yet been created:

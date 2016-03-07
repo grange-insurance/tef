@@ -13,7 +13,7 @@ Feature: Communication
   Scenario: Default endpoint names
 
   Note: The default endpoint names incorporate the current environment (e.g. dev/test/prod)
-  and name of the keeper.
+  and type of the keeper.
 
     Given the following message queues have not been yet been created:
       | tef.<env>.keeper.<keeper_type> |

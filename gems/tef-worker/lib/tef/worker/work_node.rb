@@ -50,7 +50,7 @@ module TEF
         @worker_type = options.fetch(:worker_type, 'generic')
         @name_prefix = options.fetch(:name_prefix, "tef.#{tef_env}")
         @in_queue = options.fetch(:in_queue, "#{@name_prefix}.worker.#{Socket.gethostname}.#{Process.pid}")
-        @output_exchange = options.fetch(:output_exchange, "#{@name_prefix}.worker_generated_messages")
+        @output_exchange = options.fetch(:output_exchange, "#{@name_prefix}.#{@worker_type}.worker_generated_messages")
         @manager_queue = options.fetch(:manager_queue, "#{@name_prefix}.manager")
         @name = options.fetch(:name, "#{Socket.gethostname}.#{Process.pid}")
       end

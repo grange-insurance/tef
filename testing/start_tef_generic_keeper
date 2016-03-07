@@ -13,7 +13,7 @@ bunny_connection = Bunny.new(bunny_url)
 bunny_connection.start
 bunny_channel = bunny_connection.create_channel
 
-worker_exchange = bunny_channel.topic("tef.#{tef_env}.worker_generated_messages", durable: true)
+worker_exchange = bunny_channel.topic("tef.#{tef_env}.generic.worker_generated_messages", durable: true)
 keeper_queue = bunny_channel.queue("tef.#{tef_env}.keeper.generic", durable: true)
 keeper_queue.bind(worker_exchange, routing_key: 'task')
 

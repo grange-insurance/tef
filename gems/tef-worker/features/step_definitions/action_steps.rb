@@ -23,7 +23,7 @@ end
 
 When(/^it is given a task to work$/) do
   # Need something hooked before it starts working that will capture output messages
-  out_message_exchange = "tef.#{@tef_env}.worker_generated_messages"
+  out_message_exchange = "tef.#{@tef_env}.generic.worker_generated_messages"
   @capture_message_queue = @bunny_channel.queue('test_message_capture_queue')
   @capture_message_queue.bind(out_message_exchange, routing_key: '#')
 

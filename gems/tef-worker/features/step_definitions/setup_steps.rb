@@ -12,7 +12,7 @@ Given(/^message queues for the Worker have not yet been created$/) do
 end
 
 Given(/^message exchanges for the Worker have not yet been created$/) do
-  out_exchange_name = "tef.#{@tef_env}.worker_generated_messages"
+  out_exchange_name = "tef.#{@tef_env}.generic.worker_generated_messages"
 
   delete_exchange(out_exchange_name) if @bunny_connection.exchange_exists?(out_exchange_name)
 end
@@ -43,7 +43,7 @@ And(/^worker message queues are available$/) do
 end
 
 And(/^worker message exchanges are available$/) do
-  @message_exchange_name = "tef.#{@tef_env}.worker_generated_messages"
+  @message_exchange_name = "tef.#{@tef_env}.generic.worker_generated_messages"
 
   @expected_exchanges = [@message_exchange_name]
 

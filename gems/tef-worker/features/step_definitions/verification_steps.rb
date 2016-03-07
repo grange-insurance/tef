@@ -16,7 +16,7 @@ Then(/^message queues for the Worker have been created$/) do
 end
 
 Then(/^message exchanges for the Worker have been created$/) do
-  out_exchange_name = "tef.#{@tef_env}.worker_generated_messages"
+  out_exchange_name = "tef.#{@tef_env}.generic.worker_generated_messages"
 
   raise("Expected exchange '#{out_exchange_name}' to exist but it did not.") unless @bunny_connection.exchange_exists?(out_exchange_name)
 end

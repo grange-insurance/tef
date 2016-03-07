@@ -11,7 +11,7 @@ describe 'Receiver, Integration' do
 
       @options = {
           in_queue: @mock_in_queue,
-          out_queue: create_mock_queue,
+          output_exchange: create_mock_exchange,
           callback: double('mock callback')
       }
 

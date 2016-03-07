@@ -12,9 +12,9 @@ describe 'Keeper, Unit' do
   it_should_behave_like 'a strictly configured component'
   it_should_behave_like 'a service component, unit level'
   it_should_behave_like 'a receiving component, unit level', [:in_queue]
-  it_should_behave_like 'a sending component, unit level', [:out_queue]
+  it_should_behave_like 'a sending component, unit level', [:output_exchange]
   it_should_behave_like 'a logged component, unit level'
-  it_should_behave_like 'a wrapper component, unit level', [:in_queue, :out_queue]
+  it_should_behave_like 'a wrapper component, unit level', [:in_queue, :output_exchange]
 
 
   describe 'instance level' do
@@ -56,11 +56,11 @@ describe 'Keeper, Unit' do
         expect(keeper.instance_variable_get(:@in_queue)).to_not be_nil
       end
 
-      it 'does not have a default out queue' do
-        configuration.delete(:out_queue)
+      it 'has a default output exchange' do
+        configuration.delete(:output_exchange)
 
         keeper = clazz.new(configuration)
-        expect(keeper.instance_variable_get(:@out_queue)).to be_nil
+        expect(keeper.instance_variable_get(:@output_exchange)).to_not be_nil
       end
 
     end

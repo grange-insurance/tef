@@ -21,21 +21,24 @@ module TEF
           mock_thing
         end
 
-        def create_mock_channel(exchange = create_mock_exchange)
+        def create_mock_channel(exchange = nil)
           mock_thing = double('mock_channel').as_null_object
-          allow(mock_thing).to receive(:default_exchange).and_return(exchange)
+          allow(mock_thing).to receive(:default_exchange).and_return(exchange) if exchange
           allow(mock_thing).to receive(:generate_consumer_tag).and_return('123456789')
           allow(mock_thing).to receive(:number).and_return(1)
           allow(mock_thing).to receive(:acknowledge)
           allow(mock_thing).to receive(:queue).and_return(exchange)
+          allow(mock_thing).to receive(:topic).and_return(exchange)
 
           mock_thing
         end
 
-        def create_mock_exchange
+        def create_mock_exchange(channel = nil, options = {})
           mock_thing = double('mock_exchange').as_null_object
           allow(mock_thing).to receive(:publish)
           allow(mock_thing).to receive(:name).and_return('test_exchange')
+          allow(mock_thing).to receive(:channel).and_return(channel) if channel
+          allow(mock_thing).to receive(:opts).and_return(options)
 
           mock_thing
         end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'tef/core'
 
-
+# todo - either stop this kind of testing from breaking code coverage or remove it entirely
 describe 'Tef::Core' do
 
   context 'the gem has just been required' do
@@ -35,8 +35,12 @@ describe 'Tef::Core' do
 
       let(:nodule) { TEF::Core }
 
-      it 'provides access to the TefComponent class' do
-        expect(nodule.const_defined?(:TefComponent)).to be true
+      it 'provides access to the OuterComponent class' do
+        expect(nodule.const_defined?(:OuterComponent)).to be true
+      end
+
+      it 'provides access to the InnerComponent class' do
+        expect(nodule.const_defined?(:InnerComponent)).to be true
       end
 
     end

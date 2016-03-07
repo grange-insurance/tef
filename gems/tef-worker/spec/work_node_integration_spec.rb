@@ -8,12 +8,12 @@ describe 'WorkNode, Integration' do
 
   let(:mock_logger) { create_mock_logger }
   let(:mock_in_queue) { create_mock_queue }
-  let(:mock_out_queue) { create_mock_queue }
+  let(:mock_out_exchange) { create_mock_exchange }
   let(:mock_manager_queue) { create_mock_queue }
 
   let(:configuration) { {logger: mock_logger,
                          in_queue: mock_in_queue,
-                         out_queue: mock_out_queue,
+                         output_exchange: mock_out_exchange,
                          manager_queue: mock_manager_queue} }
   let(:work_node) { clazz.new(configuration) }
 
@@ -21,9 +21,9 @@ describe 'WorkNode, Integration' do
   it_should_behave_like 'a logged component, integration level'
   it_should_behave_like 'a service component, integration level'
   it_should_behave_like 'a receiving component, integration level', [:in_queue]
-  it_should_behave_like 'a sending component, integration level', [:out_queue, :manager_queue]
+  it_should_behave_like 'a sending component, integration level', [:output_exchange, :manager_queue]
   it_should_behave_like 'a rooted component, integration level'
-  it_should_behave_like 'a wrapper component, integration level', [:in_queue, :out_queue, :manager_queue]
+  it_should_behave_like 'a wrapper component, integration level', [:in_queue, :output_exchange, :manager_queue]
 
 
   it 'defaults to a basic worker class if one is not provided' do

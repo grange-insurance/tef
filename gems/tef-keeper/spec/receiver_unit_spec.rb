@@ -14,7 +14,7 @@ describe 'Receiver, Unit' do
 
     let(:mock_logger) { create_mock_logger }
     let(:configuration) { {in_queue: create_mock_queue,
-                           out_queue: create_mock_queue,
+                           output_exchange: create_mock_exchange,
                            callback: double('mock callback'),
                            logger: mock_logger} }
     let(:receiver) { clazz.new(configuration) }
@@ -39,8 +39,8 @@ describe 'Receiver, Unit' do
         expect { clazz.new(configuration) }.to raise_error(ArgumentError, /must have/i)
       end
 
-      it 'will not complain if not provided a queue to which to post task results' do
-        configuration.delete(:out_queue)
+      it 'will not complain if not provided an exchange to which to post task results' do
+        configuration.delete(:output_exchange)
 
         expect { clazz.new(configuration) }.to_not raise_error
       end
@@ -58,14 +58,14 @@ describe 'Receiver, Unit' do
       let(:fake_task_result) { {guid: '12345'} }
       let(:mock_properties) { create_mock_properties }
       let(:fake_in_queue) { create_fake_publisher(create_mock_channel) }
-      let(:mock_out_queue) { create_mock_queue }
+      let(:mock_out_queue) { create_mock_exchange }
       let(:mock_callback) { mock = double('callback')
                             allow(mock).to receive(:call)
                             mock }
 
       before(:each) do
         configuration[:in_queue] = fake_in_queue
-        configuration[:out_queue] = mock_out_queue
+        configuration[:output_exchange] = mock_out_queue
         configuration[:callback] = mock_callback
 
         @receiver = clazz.new(configuration)
@@ -87,32 +87,6 @@ describe 'Receiver, Unit' do
         fake_in_queue.call(create_mock_delivery_info, mock_properties, JSON.generate(fake_task_result))
 
         expect(mock_callback).to have_received(:call).exactly(:once)
-      end
-
-      it 'will forward tasks if an outbound queue has been set' do
-        configuration[:out_queue] = mock_out_queue
-
-        receiver = clazz.new(configuration)
-        receiver.start
-
-        task_json = JSON.generate(fake_task_result)
-        fake_in_queue.call(create_mock_delivery_info, create_mock_properties, task_json)
-
-        expect(mock_out_queue).to have_received(:publish).with(task_json)
-      end
-
-      it 'will not forward tasks if there is no outbound queue set' do
-        configuration[:out_queue] = nil
-
-        receiver = clazz.new(configuration)
-        receiver.start
-
-        task_json = JSON.generate(fake_task_result)
-
-        # Since there's nothing to send to, just don't blow up
-        expect { fake_in_queue.call(create_mock_delivery_info, create_mock_properties, task_json) }.to_not raise_error
-        expect(mock_logger).to_not have_received(:warn)
-        expect(mock_logger).to_not have_received(:error)
       end
 
       describe 'bad result handling' do

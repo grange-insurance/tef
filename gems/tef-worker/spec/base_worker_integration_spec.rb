@@ -15,7 +15,7 @@ describe 'BaseWorker, Integration' do
     @mock_manager_queue = create_mock_queue
     @in_queue = create_mock_queue
 
-    @options = {root_location: @default_file_directory, in_queue: @in_queue, out_queue: create_mock_queue, manager_queue: @mock_manager_queue}
+    @options = {root_location: @default_file_directory, in_queue: @in_queue, output_exchange: create_mock_exchange, manager_queue: @mock_manager_queue}
     @worker = clazz.new(@options)
   end
 

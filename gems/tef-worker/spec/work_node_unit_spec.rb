@@ -13,7 +13,7 @@ describe 'WorkNode, Unit' do
 
   let(:configuration) { {logger: mock_logger,
                          in_queue: mock_in_queue,
-                         out_queue: mock_out_queue,
+                         output_exchange: mock_out_queue,
                          manager_queue: mock_manager_queue} }
 
 
@@ -24,10 +24,10 @@ describe 'WorkNode, Unit' do
   it_should_behave_like 'a loosely configured component'
   it_should_behave_like 'a service component, unit level'
   it_should_behave_like 'a receiving component, unit level', [:in_queue]
-  it_should_behave_like 'a sending component, unit level', [:out_queue, :manager_queue]
+  it_should_behave_like 'a sending component, unit level', [:output_exchange, :manager_queue]
   it_should_behave_like 'a logged component, unit level'
   it_should_behave_like 'a rooted component, unit level'
-  it_should_behave_like 'a wrapper component, unit level', [:in_queue, :out_queue, :manager_queue]
+  it_should_behave_like 'a wrapper component, unit level', [:in_queue, :output_exchange, :manager_queue]
 
 
   describe 'instance level' do

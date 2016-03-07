@@ -11,9 +11,9 @@ describe 'Keeper, Integration' do
 
   it_should_behave_like 'a service component, integration level'
   it_should_behave_like 'a receiving component, integration level', [:in_queue]
-  it_should_behave_like 'a sending component, integration level', [:out_queue]
+  it_should_behave_like 'a sending component, integration level', [:output_exchange]
   it_should_behave_like 'a logged component, integration level'
-  it_should_behave_like 'a wrapper component, integration level', [:in_queue, :out_queue]
+  it_should_behave_like 'a wrapper component, integration level', [:in_queue, :output_exchange]
 
 
   describe 'instance level' do

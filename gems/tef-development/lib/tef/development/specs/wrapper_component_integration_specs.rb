@@ -67,7 +67,8 @@ shared_examples_for 'a wrapper component, integration level' do |message_endpoin
       describe 'configuration problems' do
 
         before(:each) do
-          @old_method = Bunny::Channel.instance_method(:queue)
+          @old_queue_method = Bunny::Channel.instance_method(:queue)
+          @old_topic_method = Bunny::Channel.instance_method(:topic)
 
           # todo - DRY out all of these hacks into a handy temporary override method
           # Monkey patch Bunny to throw the error that we need for testing
@@ -76,13 +77,18 @@ shared_examples_for 'a wrapper component, integration level' do |message_endpoin
               def queue(*args)
                 raise(Exception, 'something went wrong')
               end
+
+              def topic(*args)
+                raise(Exception, 'something went wrong')
+              end
             end
           end
         end
 
         # Making sure that our changes don't escape a test and ruin the rest of the suite
         after(:each) do
-          Bunny::Channel.send(:define_method, :queue, @old_method)
+          Bunny::Channel.send(:define_method, :queue, @old_queue_method)
+          Bunny::Channel.send(:define_method, :topic, @old_topic_method)
         end
 
         message_endpoint_names.each do |message_endpoint|

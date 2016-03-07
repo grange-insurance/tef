@@ -7,16 +7,16 @@ describe 'ManagerNode, Integration' do
 
 
   let(:clazz) { TEF::Manager::ManagerNode }
-  let(:configuration) { {input_queue: create_mock_queue,
+  let(:configuration) { {in_queue: create_mock_queue,
                          resource_manager_class: create_mock_resource_manager_class,
                          logger: create_mock_logger} }
 
 
   describe 'common manager node behavior' do
     it_should_behave_like 'a logged component, integration level'
-    it_should_behave_like 'a service component, integration level', [:manager_queue]
-    it_should_behave_like 'a receiving component, integration level', [:manager_queue]
-    it_should_behave_like 'a wrapper component, integration level', [:manager_queue]
+    it_should_behave_like 'a service component, integration level', [:in_queue]
+    it_should_behave_like 'a receiving component, integration level', [:in_queue]
+    it_should_behave_like 'a wrapper component, integration level', [:in_queue]
   end
 
   describe 'unique manager node behavior' do

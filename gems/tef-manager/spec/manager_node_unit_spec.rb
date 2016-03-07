@@ -18,7 +18,7 @@ describe 'ManagerNode, Unit' do
   let(:mock_manager) { create_mock_manager }
   let(:mock_manager_class) { create_mock_manager_class(mock_manager) }
 
-  let(:configuration) { {input_queue: create_mock_queue,
+  let(:configuration) { {in_queue: create_mock_queue,
                          resource_manager_class: create_mock_resource_manager_class,
                          manager_class: mock_manager_class,
                          logger: mock_logger
@@ -26,9 +26,9 @@ describe 'ManagerNode, Unit' do
 
   it_should_behave_like 'a loosely configured component'
   it_should_behave_like 'a service component, unit level'
-  it_should_behave_like 'a receiving component, unit level', [:manager_queue]
+  it_should_behave_like 'a receiving component, unit level', [:in_queue]
   it_should_behave_like 'a logged component, unit level'
-  it_should_behave_like 'a wrapper component, unit level', [:manager_queue]
+  it_should_behave_like 'a wrapper component, unit level', [:in_queue]
 
 
   describe 'initial setup' do
@@ -40,10 +40,10 @@ describe 'ManagerNode, Unit' do
     end
 
     it 'has a default message queue' do
-      configuration.delete(:manager_queue)
+      configuration.delete(:in_queue)
 
       manager_node = clazz.new(configuration)
-      expect(manager_node.instance_variable_get(:@manager_queue)).to_not be_nil
+      expect(manager_node.instance_variable_get(:@in_queue)).to_not be_nil
     end
 
     #todo - add this test to other components that use prefixes
@@ -57,7 +57,7 @@ describe 'ManagerNode, Unit' do
 
         manager_node = clazz.new(configuration)
 
-        expect(manager_node.instance_variable_get(:@queue_prefix)).to eq('tef.foo')
+        expect(manager_node.instance_variable_get(:@name_prefix)).to eq('tef.foo')
       ensure
         ENV[env_var] = old_env
       end

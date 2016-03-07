@@ -5,31 +5,30 @@ require 'process'
 
 module TEF
   module Worker
-    class BaseWorker < Bunny::Consumer
+    class BaseWorker < Core::InnerComponent
 
-      attr_reader :worker_type, :logger, :status_interval
+      attr_reader :worker_type, :status_interval
       attr_accessor :status, :name, :root_location
 
 
       def initialize(options)
-        configure_self(options)
-        validate_configuration_options(options)
+        super
 
-        # todo - test the ack flag being used
-        super(@worker_queue.channel, @worker_queue, @worker_queue.channel.generate_consumer_tag, false)
+
+        set_message_action(worker_callback)
+
 
         @status = :idle
 
         @logger.info("Worker(#{@worker_type}) created.")
-        @logger.debug("Worker queue: #{@worker_queue.name}")
-        @logger.debug("Keeper queue: #{@out_queue.name}")
-        @logger.debug("Manager queue: #{@manager_queue.name}")
+        @logger.debug("Input queue: #{@in_queue.name}")
+        @logger.debug("Output exchange: #{@output_exchange.name}")
+        @logger.debug("Manager queue: #{@output_exchange.name}")
         @logger.debug("Root location: #{@root_location}")
       end
 
       def start
-        set_message_action
-        listen_for_messages
+        super
 
         update_manager
         set_heartbeat
@@ -100,7 +99,7 @@ module TEF
             # todo - Workers should probably have name, huh?
             name: "#{@name}",
             status: "#{@status}",
-            exchange_name: "#{@worker_queue.name}"
+            exchange_name: "#{@in_queue.name}"
         }
 
         @manager_queue.publish(JSON.generate(status_data))
@@ -111,26 +110,26 @@ module TEF
 
 
       def validate_configuration_options(options)
-        raise(ArgumentError, 'Configuration options must have an :in_queue') unless options[:in_queue]
-        raise(ArgumentError, 'Configuration options must have an :out_queue') unless options[:out_queue]
+        super
+
+        raise(ArgumentError, 'Configuration options must have an :output_exchange') unless options[:output_exchange]
         raise(ArgumentError, 'Configuration options must have a :manager_queue') unless options[:manager_queue]
-        raise(ArgumentError, ":status_interval can only be an integer. Got #{options[:status_interval].class}") unless @status_interval.is_a?(Integer)
+        raise(ArgumentError, ":status_interval can only be an integer. Got #{options[:status_interval].class}") unless (options[:status_interval].is_a?(Integer) || options[:status_interval].nil?)
       end
 
       def configure_self(options)
+        super
+
         @root_location = options[:root_location]
         @status_interval = options.fetch(:status_interval, 20)
-        @out_queue = options[:out_queue]
-        @worker_queue = options[:in_queue]
         @manager_queue = options[:manager_queue]
         @worker_type = options.fetch(:worker_type, 'generic')
-        @logger = options.fetch(:logger, Logger.new($stdout))
         @runner = options.fetch(:runner, TaskRunner::Runner.new(logger: @logger))
         @name = options.fetch(:name, "#{Socket.gethostname}.#{Process.pid}")
       end
 
-      def set_message_action
-        on_delivery do |delivery_info, _properties, payload|
+      def worker_callback
+        lambda { |_delivery_info, _properties, payload|
           @logger.debug 'Message received'
 
           # todo - more functionality that needs testing
@@ -160,7 +159,7 @@ module TEF
             end
 
             begin
-              @out_queue.publish(JSON.generate(task))
+              @output_exchange.publish(JSON.generate(task), routing_key: 'task')
               update_manager :task_complete
             rescue Exception => ex
               @logger.error "Error publishing result #{ex.message}"
@@ -169,13 +168,7 @@ module TEF
 
           @logger.debug 'Finished processing message'
           update_manager :idle
-
-          @worker_queue.channel.acknowledge(delivery_info.delivery_tag, false)
-        end
-      end
-
-      def listen_for_messages
-        @worker_queue.subscribe_with(self, block: false)
+        }
       end
 
       def set_heartbeat

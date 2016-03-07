@@ -4,6 +4,7 @@ require 'bunny'
 module TEF
   module Keeper
     # Simple class to receive tasks from workers, call a callback and then requeue if needed
+    # todo - have this class use the InnerComponent class
     class Receiver < Bunny::Consumer
 
       attr_reader :logger
@@ -69,7 +70,7 @@ module TEF
       def forward_task(task)
         # todo - still need a requirement to make the tasks persistent
         #@task_queue.publish(JSON.generate(task), :persistent => true)
-        @task_queue.publish(JSON.generate(task)) if @task_queue
+        @task_queue.publish(JSON.generate(task), routing_key: 'task') if @task_queue
       end
 
     end

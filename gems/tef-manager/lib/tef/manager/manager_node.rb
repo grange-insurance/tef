@@ -7,24 +7,18 @@ require 'active_record'
 module TEF
   module Manager
     # High level object that ties all the components together into a functional app
-    class ManagerNode < Core::TefComponent
-
-      # todo - pull these and other exit codes out into TEF module constants
-      EXIT_CODE_FAILED_QUEUE = 3
-
-      attr_reader :manager_queue_name
+    class ManagerNode < Core::OuterComponent
 
 
+      # todo - make the OuterComponent loosely configured?
       def initialize(options = {})
-        super(options)
-
-        configure_self(options)
+        super
       end
+
 
       def start
         super
 
-        create_message_queues
         init_database
         assemble_dispatcher
         assemble_manager
@@ -47,14 +41,16 @@ module TEF
 
 
       def configure_self(options)
+        super
+
         #todo - test this
         @db_logger = options.fetch(:db_logger, nil)
 
-        @queue_prefix = options.fetch(:queue_prefix, "tef.#{tef_env}")
+        @name_prefix = options.fetch(:name_prefix, "tef.#{tef_env}")
         @logger.progname = 'tef_manager'
 
 
-        @manager_queue = options.fetch(:manager_queue, "#{@queue_prefix}.manager")
+        @in_queue = options.fetch(:in_queue, "#{@name_prefix}.manager")
 
         @manager = options.fetch(:manager_class, TEF::Manager::Manager)
         @task_queue = options.fetch(:task_queue_class, TEF::Manager::TaskQueue)
@@ -72,23 +68,6 @@ module TEF
         @base_store_key = options.fetch(:base_store_key, default_base_store_key)
         @resource_store = options.fetch(:resource_store, default_resource_store)
 
-      end
-
-      def create_message_queues
-        @logger.info('Creating message queues')
-
-        begin
-          # Assume that an existing queue was provided if there is no connection
-          channel = @connection.create_channel if @connection
-
-          @manager_queue = channel.queue(@manager_queue, :durable => true) if @manager_queue.is_a?(String)
-          @manager_queue_name = @manager_queue.name
-          # todo - update the relevant spec to also check for the channel id
-          @logger.info "Manager queue: #{@manager_queue_name} (channel #{@manager_queue.channel.id})"
-        rescue => ex
-          @logger.error("Failed to create control queues.  #{ex.message}")
-          exit(EXIT_CODE_FAILED_QUEUE)
-        end
       end
 
       def create_task_queue
@@ -117,7 +96,7 @@ module TEF
       def assemble_manager
         manager_options = {
             logger: @logger,
-            input_queue: @manager_queue,
+            input_queue: @in_queue,
             task_queue: @task_queue,
             worker_collective: @worker_collective,
             dispatcher: @dispatcher

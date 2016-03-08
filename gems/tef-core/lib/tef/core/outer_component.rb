@@ -76,12 +76,14 @@ module TEF
         begin
           channel = @connection.create_channel
 
+          # todo - can't decide whether or not these should be optional
           if @in_queue
             @in_queue = channel.queue(@in_queue, :durable => true) if @in_queue.is_a?(String)
             @in_queue_name = @in_queue.name
             @logger.info "In queue: #{@in_queue_name} (channel #{channel.id})"
           end
 
+          # todo - can't decide whether or not these should be optional
           if @output_exchange
             # todo - test that the exchange created is a topical exchange
             @output_exchange = channel.topic(@output_exchange, :durable => true) if @output_exchange.is_a?(String)

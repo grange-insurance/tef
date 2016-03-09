@@ -4,29 +4,19 @@ require 'bunny'
 module TEF
   module Keeper
     # Simple class to receive tasks from workers, call a callback and then requeue if needed
-    # todo - have this class use the InnerComponent class
-    class Receiver < Bunny::Consumer
-
-      attr_reader :logger
+    class Receiver < TEF::Core::InnerComponent
 
 
       def initialize(options)
-        raise(ArgumentError, 'Configuration options must have an :in_queue') unless options[:in_queue]
-        raise(ArgumentError, 'Configuration options must have a :callback') unless options[:callback]
+        super
 
-        @logger = options.fetch(:logger, Logger.new($stdout))
-        @in_queue = options[:in_queue]
-        @task_queue = options[:out_queue]
-        @task_callback = options[:callback]
-
-        # todo - test the ack flag being used
-        super(@in_queue.channel, @in_queue, @in_queue.channel.generate_consumer_tag, false)
         #@logger.debug("Receiver created, receiving from #{@in_queue.name} and sending to #{@task_queue.name}")
       end
 
       def start
-        set_message_action
-        listen_for_messages
+        set_message_action(message_callback)
+
+        super
       end
 
       def stop
@@ -37,8 +27,21 @@ module TEF
       private
 
 
-      def set_message_action
-        on_delivery do |delivery_info, _properties, message_body|
+      def validate_configuration_options(options)
+        super
+
+        raise(ArgumentError, 'Configuration options must have a :callback') unless options[:callback]
+      end
+
+      def configure_self(options)
+        super
+
+        @task_queue = options[:out_queue]
+        @task_callback = options[:callback]
+      end
+
+      def message_callback
+        lambda { |delivery_info, _properties, message_body|
 
           begin
             task = JSON.parse(message_body, symbolize_names: true)
@@ -53,9 +56,7 @@ module TEF
             @logger.error("Callback error #{e.class}: #{e}")
             @logger.debug("backtrace: #{e.backtrace}")
           end
-
-          @in_queue.channel.acknowledge(delivery_info.delivery_tag, false)
-        end
+        }
 
         #@logger.debug('Message action set')
       end
@@ -63,8 +64,7 @@ module TEF
       def listen_for_messages
         @logger.info('Listening for results...')
 
-        # Non-blocking is the default but passing it in anyway for clarity
-        @in_queue.subscribe_with(self, block: false)
+        super
       end
 
       def forward_task(task)

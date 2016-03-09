@@ -12,7 +12,7 @@ describe 'Manager, Integration' do
   let(:mock_worker_collective) { double('mock_worker_collective').as_null_object }
   let(:mock_input_queue) { create_mock_queue }
   let(:mock_logger) { create_mock_logger }
-  let(:configuration) { {input_queue: mock_input_queue,
+  let(:configuration) { {in_queue: mock_input_queue,
                          dispatcher: mock_dispatcher,
                          task_queue: mock_task_queue,
                          worker_collective: mock_worker_collective,
@@ -24,7 +24,7 @@ describe 'Manager, Integration' do
   describe 'common behavior' do
     it_should_behave_like 'a logged component, integration level'
     # todo - make other things responsive as well?
-    it_should_behave_like 'a responsive component, integration level', [:input_queue], {needs_started: true}
+    it_should_behave_like 'a responsive component, integration level', [:in_queue], {needs_started: true}
   end
 
 
@@ -63,7 +63,7 @@ describe 'Manager, Integration' do
 
       it 'sets the state of the manager in response to a state update message' do
         control_queue = create_fake_publisher(create_mock_channel)
-        configuration[:input_queue] = control_queue
+        configuration[:in_queue] = control_queue
         set_state_command[:data] = 'stopped'
 
         manager = clazz.new(configuration)
@@ -80,9 +80,9 @@ describe 'Manager, Integration' do
         end
       end
 
-      it 'will complain if not provided with state data with which to set the state' do
+      it 'can gracefully handle not being provided with state data with which to set the state' do
         control_queue = create_fake_publisher(create_mock_channel)
-        configuration[:input_queue] = control_queue
+        configuration[:in_queue] = control_queue
         set_state_command.delete(:data)
 
         manager = clazz.new(configuration)
@@ -90,16 +90,34 @@ describe 'Manager, Integration' do
         begin
           manager.start
 
-          expect { control_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(set_state_command)) }.to raise_error(ArgumentError, /INVALID_JSON\|NO_DATA/i)
+          expect { control_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(set_state_command)) }.to_not raise_error
 
         ensure
           manager.stop
         end
       end
 
-      it 'will complain if given an invalid state' do
+      it 'logs when it is not provided with state data with which to set the state' do
         control_queue = create_fake_publisher(create_mock_channel)
-        configuration[:input_queue] = control_queue
+        configuration[:in_queue] = control_queue
+        set_state_command.delete(:data)
+        json_message = JSON.generate(set_state_command)
+        manager = clazz.new(configuration)
+
+        begin
+          manager.start
+
+          control_queue.call(create_mock_delivery_info, create_mock_properties, json_message)
+
+          expect(mock_logger).to have_received(:error).with(/INVALID_JSON\|NO_DATA\|#{json_message}/i)
+        ensure
+          manager.stop
+        end
+      end
+
+      it 'can gracefully handle being given an invalid state' do
+        control_queue = create_fake_publisher(create_mock_channel)
+        configuration[:in_queue] = control_queue
         set_state_command[:data] = 'not an approved state'
 
         manager = clazz.new(configuration)
@@ -107,8 +125,27 @@ describe 'Manager, Integration' do
         begin
           manager.start
 
-          expect { control_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(set_state_command)) }.to raise_error(ArgumentError, /INVALID_JSON\|INVALID_STATE\|#{set_state_command[:data]}/i)
+          expect { control_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(set_state_command)) }.to_not raise_error
 
+        ensure
+          manager.stop
+        end
+      end
+
+      it 'logs when it is given an invalid state' do
+        control_queue = create_fake_publisher(create_mock_channel)
+        configuration[:in_queue] = control_queue
+        set_state_command[:data] = 'not an approved state'
+        json_message = JSON.generate(set_state_command)
+
+        manager = clazz.new(configuration)
+
+        begin
+          manager.start
+
+          control_queue.call(create_mock_delivery_info, create_mock_properties, json_message)
+
+          expect(mock_logger).to have_received(:error).with(/INVALID_JSON\|INVALID_STATE\|#{set_state_command[:data]}\|#{json_message}/i)
         ensure
           manager.stop
         end
@@ -116,7 +153,7 @@ describe 'Manager, Integration' do
 
       it 'updates the state of the manager on a good state update' do
         control_queue = create_fake_publisher(create_mock_channel)
-        configuration[:input_queue] = control_queue
+        configuration[:in_queue] = control_queue
         set_state_command[:data] = :paused
 
         manager = clazz.new(configuration)
@@ -154,7 +191,7 @@ describe 'Manager, Integration' do
 
         properties = create_mock_properties
         message_queue = create_fake_publisher(mock_channel)
-        configuration[:input_queue] = message_queue
+        configuration[:in_queue] = message_queue
         manager = clazz.new(configuration)
 
         begin
@@ -172,7 +209,7 @@ describe 'Manager, Integration' do
 
       it 'sets the status of a worker in response to a get worker status message' do
         message_queue = create_fake_publisher(mock_channel)
-        configuration[:input_queue] = message_queue
+        configuration[:in_queue] = message_queue
         manager = clazz.new(configuration)
 
         begin
@@ -191,7 +228,7 @@ describe 'Manager, Integration' do
         worker_collective = TEF::Manager::WorkerCollective.new({resource_manager: double('mock_dispatcher').as_null_object}) # Need a real one for this test
         configuration[:worker_collective] = worker_collective
         message_queue = create_fake_publisher(mock_channel)
-        configuration[:input_queue] = message_queue
+        configuration[:in_queue] = message_queue
         manager = clazz.new(configuration)
 
         begin
@@ -217,7 +254,7 @@ describe 'Manager, Integration' do
           worker_collective = TEF::Manager::WorkerCollective.new({resource_manager: double('mock_dispatcher').as_null_object}) # Need a real one for this test
           configuration[:worker_collective] = worker_collective
           message_queue = create_fake_publisher(mock_channel)
-          configuration[:input_queue] = message_queue
+          configuration[:in_queue] = message_queue
           manager = clazz.new(configuration)
 
           begin
@@ -273,7 +310,7 @@ describe 'Manager, Integration' do
         it 'stores the received task in response to a task message' do
           suite_guid = 'manager test suite'
           message_queue = create_fake_publisher(mock_channel)
-          configuration[:input_queue] = message_queue
+          configuration[:in_queue] = message_queue
           task_message[:data] = suite_guid
 
 
@@ -301,7 +338,7 @@ describe 'Manager, Integration' do
         it 'pauses a suite in response to a pause suite message' do
           suite_guid = 'manager test suite'
           message_queue = create_fake_publisher(mock_channel)
-          configuration[:input_queue] = message_queue
+          configuration[:in_queue] = message_queue
           pause_suite_message[:data] = suite_guid
 
 
@@ -318,9 +355,9 @@ describe 'Manager, Integration' do
           end
         end
 
-        it 'will complain if not provided with guid data with which to pause a suite' do
+        it 'gracefully handles not being provided with guid data with which to pause a suite' do
           message_queue = create_fake_publisher(mock_channel)
-          configuration[:input_queue] = message_queue
+          configuration[:in_queue] = message_queue
           pause_suite_message.delete(:data)
 
 
@@ -329,7 +366,26 @@ describe 'Manager, Integration' do
           begin
             manager.start
 
-            expect { message_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(pause_suite_message)) }.to raise_error(ArgumentError, /INVALID_JSON\|NO_DATA/i)
+            expect { message_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(pause_suite_message)) }.to_not raise_error
+          ensure
+            manager.stop
+          end
+        end
+
+        it 'logs when it is not provided with guid data with which to pause a suite' do
+          message_queue = create_fake_publisher(mock_channel)
+          configuration[:in_queue] = message_queue
+          pause_suite_message.delete(:data)
+          json_message = JSON.generate(pause_suite_message)
+
+          manager = clazz.new(configuration)
+
+          begin
+            manager.start
+
+            message_queue.call(create_mock_delivery_info, create_mock_properties, json_message)
+
+            expect(mock_logger).to have_received(:error).with(/INVALID_JSON\|NO_DATA\|#{json_message}/i)
           ensure
             manager.stop
           end
@@ -345,7 +401,7 @@ describe 'Manager, Integration' do
         it 'readies a suite in response to a ready suite message' do
           suite_guid = 'manager test suite'
           message_queue = create_fake_publisher(mock_channel)
-          configuration[:input_queue] = message_queue
+          configuration[:in_queue] = message_queue
           ready_suite_message[:data] = suite_guid
 
 
@@ -353,7 +409,7 @@ describe 'Manager, Integration' do
 
           begin
             manager.start
-
+            8
             message_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(ready_suite_message))
 
             expect(mock_dispatcher).to have_received(:ready_suite).with(suite_guid)
@@ -362,9 +418,9 @@ describe 'Manager, Integration' do
           end
         end
 
-        it 'will complain if not provided with guid data with which to ready a suite' do
+        it 'gracefully handles not being provided with guid data with which to ready a suite' do
           message_queue = create_fake_publisher(mock_channel)
-          configuration[:input_queue] = message_queue
+          configuration[:in_queue] = message_queue
           ready_suite_message.delete(:data)
 
 
@@ -373,7 +429,26 @@ describe 'Manager, Integration' do
           begin
             manager.start
 
-            expect { message_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(ready_suite_message)) }.to raise_error(ArgumentError, /INVALID_JSON\|NO_DATA/i)
+            expect { message_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(ready_suite_message)) }.to_not raise_error
+          ensure
+            manager.stop
+          end
+        end
+
+        it 'logs when it is not provided with guid data with which to ready a suite' do
+          message_queue = create_fake_publisher(mock_channel)
+          configuration[:in_queue] = message_queue
+          ready_suite_message.delete(:data)
+          json_message = JSON.generate(ready_suite_message)
+
+          manager = clazz.new(configuration)
+
+          begin
+            manager.start
+
+            message_queue.call(create_mock_delivery_info, create_mock_properties, json_message)
+
+            expect(mock_logger).to have_received(:error).with(/INVALID_JSON\|NO_DATA\|#{json_message}/i)
           ensure
             manager.stop
           end
@@ -389,7 +464,7 @@ describe 'Manager, Integration' do
         it 'stops a suite in response to a stop suite message' do
           suite_guid = 'manager test suite'
           message_queue = create_fake_publisher(mock_channel)
-          configuration[:input_queue] = message_queue
+          configuration[:in_queue] = message_queue
           stop_suite_message[:data] = suite_guid
 
 
@@ -406,9 +481,9 @@ describe 'Manager, Integration' do
           end
         end
 
-        it 'will complain if not provided with guid data with which to stop a suite' do
+        it 'gracefully handles not being provided with guid data with which to stop a suite' do
           message_queue = create_fake_publisher(mock_channel)
-          configuration[:input_queue] = message_queue
+          configuration[:in_queue] = message_queue
           stop_suite_message.delete(:data)
 
 
@@ -417,7 +492,26 @@ describe 'Manager, Integration' do
           begin
             manager.start
 
-            expect { message_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(stop_suite_message)) }.to raise_error(ArgumentError, /INVALID_JSON\|NO_DATA/i)
+            expect { message_queue.call(create_mock_delivery_info, create_mock_properties, JSON.generate(stop_suite_message)) }.to_not raise_error
+          ensure
+            manager.stop
+          end
+        end
+
+        it 'logs when it is not provided with guid data with which to stop a suite' do
+          message_queue = create_fake_publisher(mock_channel)
+          configuration[:in_queue] = message_queue
+          stop_suite_message.delete(:data)
+          json_message = JSON.generate(stop_suite_message)
+
+          manager = clazz.new(configuration)
+
+          begin
+            manager.start
+
+            message_queue.call(create_mock_delivery_info, create_mock_properties, json_message)
+
+            expect(mock_logger).to have_received(:error).with(/INVALID_JSON\|NO_DATA\|#{json_message}/i)
           ensure
             manager.stop
           end
@@ -436,7 +530,7 @@ describe 'Manager, Integration' do
 
       it 'does not dispatch tasks unless it is running' do
         input_queue = create_fake_publisher(create_mock_channel)
-        configuration[:input_queue] = input_queue
+        configuration[:in_queue] = input_queue
         manager = clazz.new(configuration)
 
         begin
@@ -463,7 +557,7 @@ describe 'Manager, Integration' do
 
       it 'logs if it is not dispatching due to its state' do
         input_queue = create_fake_publisher(create_mock_channel)
-        configuration[:input_queue] = input_queue
+        configuration[:in_queue] = input_queue
         manager = clazz.new(configuration)
 
         begin
@@ -494,7 +588,7 @@ describe 'Manager, Integration' do
         end
 
         before(:each) do
-          configuration[:input_queue] = mock_message_queue
+          configuration[:in_queue] = mock_message_queue
 
           @test_interval = 1
           configuration[:dispatch_interval] = @test_interval

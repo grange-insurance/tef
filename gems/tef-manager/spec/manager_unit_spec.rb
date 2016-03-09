@@ -22,7 +22,7 @@ describe 'Manager, Unit' do
     let(:mock_input_queue) { create_mock_queue }
 
     let(:configuration) { {
-        input_queue: mock_input_queue,
+        in_queue: mock_input_queue,
         dispatcher: mock_dispatcher,
         task_queue: mock_task_queue,
         worker_collective: mock_worker_collective,
@@ -33,7 +33,7 @@ describe 'Manager, Unit' do
 
 
     it_should_behave_like 'a logged component, unit level'
-    it_should_behave_like 'a responsive component, unit level', [:input_queue], {needs_started: true}
+    it_should_behave_like 'a responsive component, unit level', [:in_queue], {needs_started: true}
 
 
     it 'has an input queue' do
@@ -41,13 +41,13 @@ describe 'Manager, Unit' do
     end
 
     it 'will complain if not provided a with an input queue' do
-      configuration.delete(:input_queue)
+      configuration.delete(:in_queue)
 
-      expect { clazz.new(configuration) }.to raise_error(ArgumentError, /must be provided/i)
+      expect { clazz.new(configuration) }.to raise_error(ArgumentError, /must have a/i)
     end
 
     it 'uses the given input queue' do
-      configuration[:input_queue] = mock_input_queue
+      configuration[:in_queue] = mock_input_queue
 
       manager = clazz.new(configuration)
 

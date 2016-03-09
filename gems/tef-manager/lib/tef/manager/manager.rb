@@ -1,27 +1,24 @@
 module TEF
   module Manager
     # The task queue supplies tasks to the dispatcher.
-    class Manager < Bunny::Consumer
+    class Manager < TEF::Core::InnerComponent
 
       include TEF::WithControlQueue
 
 
-      attr_reader :logger, :input_queue, :state, :dispatcher, :task_queue, :worker_collective, :dispatch_interval
+      attr_reader :input_queue, :state, :dispatcher, :task_queue, :worker_collective, :dispatch_interval
 
 
       def initialize(options)
-        validate_configuration_options(options)
-        configure_self(options)
-
-        # todo - test the ack flag being used
-        super(@input_queue.channel, @input_queue, @input_queue.channel.generate_consumer_tag, false)
+        super
 
         set_state(:starting)
       end
 
       def start
-        set_message_action
-        listen_for_messages
+        set_message_action(message_callback)
+
+        super
 
         set_state(:running)
 
@@ -45,7 +42,8 @@ module TEF
 
 
       def validate_configuration_options(options)
-        raise(ArgumentError, 'An :input_queue must be provided.') unless options[:input_queue]
+        super
+
         raise(ArgumentError, 'A :dispatcher must be provided.') unless options[:dispatcher]
         raise(ArgumentError, 'A :task_queue must be provided.') unless options[:task_queue]
         raise(ArgumentError, 'A :worker_collective must be provided.') unless options[:worker_collective]
@@ -53,17 +51,18 @@ module TEF
       end
 
       def configure_self(options)
-        @logger = options.fetch(:logger, Logger.new($stdout))
+        super
+
         @rabbit_connection = options[:rabbit_connection]
         @dispatch_interval = options.fetch(:dispatch_interval, 10)
-        @input_queue = options[:input_queue]
+        @input_queue = @in_queue
         @dispatcher = options[:dispatcher]
         @task_queue = options[:task_queue]
         @worker_collective = options[:worker_collective]
       end
 
-      def set_message_action
-        on_delivery do |delivery_info, properties, message_body|
+      def message_callback
+        lambda { |delivery_info, properties, message_body|
 
           begin
             message = JSON.parse(message_body, symbolize_names: true)
@@ -83,7 +82,7 @@ module TEF
                 handle_task_message(delivery_info, properties, message)
               when 'get_workers'
                 worker_data = handle_get_workers_message(delivery_info, properties, message)
-                reply_if_requested(@input_queue, properties, worker_data)
+                reply_if_requested(@in_queue, properties, worker_data)
               when 'worker_status'
                 handle_worker_status_message(delivery_info, properties, message)
               else
@@ -95,18 +94,13 @@ module TEF
             error = "MESSAGE_ERROR|INVALID_JSON|#{exception.message}|#{message_body}"
             @logger.error error
 
-            reply_if_requested(@input_queue, properties, error)
+            reply_if_requested(@in_queue, properties, error)
+
+          rescue ArgumentError => exception
+            error = "#{exception.message}|#{message_body}"
+            @logger.error error
           end
-
-
-          @input_queue.channel.acknowledge(delivery_info.delivery_tag, false)
-        end
-      end
-
-      def listen_for_messages
-        #todo - find a way to test for blocking flag/behavior
-        # Non-blocking is the default but passing it in anyway for clarity
-        @input_queue.subscribe_with(self, block: false)
+        }
       end
 
       def handle_dispatch_tasks_message(delivery_info, properties, payload)
@@ -161,7 +155,7 @@ module TEF
       def handle_worker_status_message(delivery_info, properties, message)
         unless @worker_collective.workers[message[:name]]
           if message[:exchange_name] && message[:status]
-            worker_queue = @input_queue.channel.queue(message[:exchange_name], durable: true)
+            worker_queue = @in_queue.channel.queue(message[:exchange_name], durable: true)
 
             @worker_collective.register_worker(message[:name], worker_queue, message)
           end
@@ -175,7 +169,7 @@ module TEF
           # todo - probably need to add some auto-stopping in case the dispatcher gets killed without #stop-ing
 
           # May have to give this thread its own channel to publish through if we run into frame errors
-          @input_queue.publish(JSON.generate({type: 'dispatch_tasks'}))
+          @in_queue.publish(JSON.generate({type: 'dispatch_tasks'}))
         end
       end
 

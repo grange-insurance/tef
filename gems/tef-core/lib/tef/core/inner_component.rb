@@ -54,6 +54,7 @@ module TEF
       end
 
       def listen_for_messages
+        # todo - find a way to test for blocking flag/behavior
         # Non-blocking is the default but passing it in anyway for clarity
         @in_queue.subscribe_with(self, block: false)
       end

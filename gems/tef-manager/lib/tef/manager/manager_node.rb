@@ -96,7 +96,7 @@ module TEF
       def assemble_manager
         manager_options = {
             logger: @logger,
-            input_queue: @in_queue,
+            in_queue: @in_queue,
             task_queue: @task_queue,
             worker_collective: @worker_collective,
             dispatcher: @dispatcher

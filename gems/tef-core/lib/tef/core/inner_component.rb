@@ -48,7 +48,7 @@ module TEF
             @logger.error "There was a problem while handling the message: #{e.message}:#{e.backtrace}"
           end
 
-          # Always ackknowledge the message
+          # Always acknowledge the message
           @in_queue.channel.acknowledge(delivery_info.delivery_tag, false)
         end
       end

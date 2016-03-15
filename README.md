@@ -25,8 +25,11 @@ The services below make up a typical TEF installation.
 ## Extensibility
 Additional services an be plugged into the framework in order to add more complex task processing logic or extend the types of tasks that the framework can handle. Since all services use RabbitMQ to communicate, extending the framework is as easy as creating a new service and configuring existing services to direct their input/output through the new service.
  
+- **Bouncer** - *(Not implemented yet)* Prevents bad tasks from getting to the Keeper. If a task encounters errors while it is being worked or its output indicates problems of a transient nature (as determined by the rules engine used by the Bouncer), the task can be redirected so that it doesn't end up as 'noise' to Keeper. Often, this means sending the task back into the work queue to try being worked again.
+- [**tef-cucumber**](https://github.com/grange-insurance/tef-cucumber) *(Coming soon!)* Allows the TEF to handle tasks which represent Cucumber tests.
+ 
 
-## Getting started
+### Getting started
 
 To use the Task Execution Framework, you will need instances of the following:
 

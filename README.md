@@ -17,7 +17,7 @@ Grange bought into both Agile and automated testing in a big way several years a
 ## Services
 The services below make up a typical TEF installation.
 
- - **Manager** - Acts as a traffic cop, directing tasks to workers.  It accepts new tasks in JSON format via an "input" RabbitMQ exchange.  Workers, and others, can communicate with the Manager via a "control" RabbitMQ exchange.
+ - **Manager** - Acts as a traffic cop, directing tasks to workers.  Tasks can be sent to it and it will hold them until there is a worker available that can handle the task.
  - **Worker** - Executes tasks. Each type of task requires a worker that can handle it, at a minimum. The only requirement placed on a worker by the TEF is that it be cable of receiving a task in JSON via RabbitMQ and that it advertise it's availability to the manger via RabbitMQ.
  - **Keeper** - Receives the output of the workers.  In most cases a custom keeper is developed for each custom task.  A simple implementation of a Keeper for a task could store the results in a database.
   
@@ -51,8 +51,8 @@ The properties of a task are as follows:
  * **task_type**     - A string identifying the type of task this is.
  * **guid**          - A GUID that uniquely identifies this task  
  * **priority**      - A numeric value indicating how important a task is (higher numbers are better). More important tasks will be dispatched to workers before less important tasks.
- * **resources**     - A pipe delimited list of resource names this task depends on.
- * **time_limit**    - How long can this task be in the "working" state before being considered stalled and getting redispatched.
+ * **resources**     - A list of resource names this task depends on.
+ * **time_limit**    - How long (in seconds) this task can be in the "working" state before being considered stalled and getting re-dispatched to a different worker.
  * **task_data**     - An arbitrary blob of data to be consumed by the task specific workers and keepers.
  * **suite_guid**    - A GUID that can be used to group tasks into a common group.
 
@@ -64,9 +64,9 @@ Below is an example task envelope for a hypothetical "echo" task.
   "task_type": "echo",
   "guid": "task_123456",
   "priority": 5,
-  "resources": "pipe|delimited|list",
+  "resources": ["resource_1","resource_2","resource_3"],
   "time_limit": 600,
-  "task_data": {"message": "hello world"},
+  "task_data": {command: "echo 'Hello'"},
   "suite_guid": "task_suite_7"  
 }
 ```

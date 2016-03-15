@@ -14,7 +14,7 @@ To run the keeper service on a machine:
  ```
  gem install tef-keeper
  ```
-* Unlike of service gems, there is no provided binary to run because the behavior of handling a task must be provided by the user. Below is an example Ruby script that will run a Keeper service that simply outputs the id of the tasks that it handles:
+* Unlike other service gems, there is no provided binary to run because the behavior of handling a task must be provided by the user. Below is an example Ruby script that will run a Keeper service that simply outputs the id of the tasks that it handles:
 
 ```ruby
 require 'tef/keeper'
@@ -48,7 +48,7 @@ end
 Important Environment Variables
 =========
  * **TEF_ENV** - Determines the environment you're running in.  This should be one of: dev, test or prod.  It defaults to dev.
- * **TEF_AMQP_URL_(TEF_ENV value)** - The URL that maps to the RabbmitMQ instance that the worker will use to communicate with other parts of the TEF (e.g. "amqp://guest:guest@localhost:5672"). 
+ * **TEF_AMQP_URL_(TEF_ENV value)** - The URL that maps to the RabbmitMQ instance that the keeper will use to communicate with other parts of the TEF (e.g. "amqp://guest:guest@localhost:5672"). 
 
 
 A Keeper's view of a task
@@ -64,7 +64,7 @@ Below is a hypothetical 'echo' task. Since the **task_type** is 'echo', the keep
   "task_type": "echo",
   "guid": "task_123456",
   "priority": 5,
-  "resources": "pipe|delimited|list",
+  "resources": ["resource_1","resource_2","resource_3"],
   "time_limit": 600,
   "task_data": {"message": "hello world",
                 "output": "success"},

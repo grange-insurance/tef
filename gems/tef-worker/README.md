@@ -41,7 +41,7 @@ Since the information contained in **task_data** depends entirely on what the ty
   "task_type": "echo",
   "guid": "task_123456",
   "priority": 5,
-  "resources": "pipe|delimited|list",
+  "resources": ["resource_1","resource_2","resource_3"],
   "time_limit": 600,
   "task_data": {"message": "hello world"},
   "suite_guid": "task_suite_7"  

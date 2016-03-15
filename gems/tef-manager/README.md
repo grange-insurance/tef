@@ -43,16 +43,25 @@ In the example task below, that would mean that the manager utilizes every field
   "task_type": "echo",
   "guid": "task_123456",
   "priority": 5,
-  "resources": "pipe|delimited|list",
+  "resources": ["resource_1","resource_2","resource_3"],
   "time_limit": 600,
   "task_data": {"message": "hello world"},
   "suite_guid": "task_suite_7"  
 }
 ```
 
-Dispatcher Control Messages
+Control Messages
 ========= 
-Dispatcher control messages have a type and data at a minimum.  Below is an example command to set the state of the manager.
+Messages can be sent to the manager that can request information or alter its state.
+
+  Valid message types are:
+  
+  * **set_state** - Data should be one of: running | paused | stopped
+  * **worker_status** - Updates the status of a worker.  If the worker does not yet exist in the collective, it will be added.  Workers should send this periodically
+  * **get_workers** - Gets the list of workers with their status.  You must set reply_to and the correlation_id when making this request.
+
+
+Below is an example message to set the state of the manager.
  ```json
  {
    "type": "set_state",
@@ -60,24 +69,7 @@ Dispatcher control messages have a type and data at a minimum.  Below is an exam
  }
  ```
 
-Valid message types are:
-
-* **set_state** - Data should be one of: running | paused | stopped
-
-
-WorkerCollective Control Messages
-========= 
-Like the dispatcher, the WorkerCollective accepts control messages 
- 
-Valid message types are:
-
-**worker_status** - Updates the status of a worker.  If the worker does not yet exist in the collective, it will be added.  Workers should send this periodically
-
-Status can be one of the following:
-
- * **ready** - The worker is up and available for work.
- * **offline** - The worker should be considered offline and removed from the collective.
- * **working** - The worker is up but busy working on a task.  The "task" field should be present and populated with the guid of the task being worked. 
+Below is an example message to update the status of a workers.
 
  ```json
  {
@@ -90,7 +82,17 @@ Status can be one of the following:
  }
  ```
 
-**get_workers** - Gets the list of workers with their status.  You must set reply_to and the correlation_id when making this request.
+
+Worker status can be one of the following:
+
+ * **ready** - The worker is up and available for work.
+ * **offline** - The worker should be considered offline and removed from the collective.
+ * **working** - The worker is up but busy working on a task.  The "task" field should be present and populated with the guid of the task being worked. 
+
+
+
+Below is an example message to get an information dump of all workers.
+
 ```json
 {
  "type": "get_workers"

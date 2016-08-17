@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-source 'https://gems.github.com'
 
 
 # The gems that we use to test our stuff

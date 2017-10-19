@@ -1,4 +1,7 @@
 require 'simplecov'
+require 'codacy-coverage'
+Codacy::Reporter.start
+
 SimpleCov.command_name 'tef-rspec'
 
 

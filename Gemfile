@@ -13,6 +13,7 @@ def testing_gems
   gem 'bunny', '~> 1.4'
   gem 'database_cleaner'
   gem 'racatt'
+  gem 'codacy-coverage', :require => false
 end
 
 # The development (i.e. source code) versions of gems that are (or are needed by) our stuff
